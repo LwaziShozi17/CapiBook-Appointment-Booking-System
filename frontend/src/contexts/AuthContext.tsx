@@ -8,7 +8,7 @@ interface AuthContextValue {
   user: UserProfileResponse | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (req: LoginRequest) => Promise<void>
+  login: (req: LoginRequest) => Promise<UserProfileResponse>
   logout: () => Promise<void>
   register: (req: RegisterRequest) => Promise<void>
   refreshUser: () => Promise<void>
@@ -35,11 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setIsLoading(false))
   }, [])
 
-  async function login(req: LoginRequest) {
+  async function login(req: LoginRequest): Promise<UserProfileResponse> {
     const res = await apiLogin(req)
     localStorage.setItem('accessToken', res.accessToken)
     localStorage.setItem('refreshToken', res.refreshToken)
     setUser(res.user)
+    return res.user
   }
 
   async function register(req: RegisterRequest) {

@@ -15,8 +15,9 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      await login({ email, password })
-      navigate('/appointments')
+      const user = await login({ email, password })
+      const isAdmin = user.role === 'BRANCH_ADMIN' || user.role === 'SYSTEM_ADMIN'
+      navigate(isAdmin ? '/admin' : '/appointments')
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??

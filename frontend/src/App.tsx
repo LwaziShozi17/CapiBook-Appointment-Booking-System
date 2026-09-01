@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -64,6 +64,14 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <AppointmentsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/appointments/new"
+                    element={
+                      <ProtectedRoute>
+                        <Navigate to="/book" replace />
                       </ProtectedRoute>
                     }
                   />
