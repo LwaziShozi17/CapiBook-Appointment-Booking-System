@@ -46,6 +46,8 @@ class AppointmentControllerTest {
                 .build();
 
         jdbcTemplate.execute("DELETE FROM appointments");
+        jdbcTemplate.execute("UPDATE users SET branch_id = NULL WHERE branch_id IS NOT NULL");
+        jdbcTemplate.execute("DELETE FROM branch_availability_exceptions");
         jdbcTemplate.execute("DELETE FROM branch_operating_hours");
         jdbcTemplate.execute("DELETE FROM branches");
         jdbcTemplate.execute("DELETE FROM users WHERE email = '" + CUSTOMER_EMAIL + "'");

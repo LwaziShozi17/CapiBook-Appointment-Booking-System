@@ -42,23 +42,24 @@ class AppointmentLifecycleIntegrationTest {
     void setUp() {
         jdbcTemplate.execute("DELETE FROM appointment_history");
         jdbcTemplate.execute("DELETE FROM appointments");
+        jdbcTemplate.update("DELETE FROM users WHERE email IN (?, ?)", CUSTOMER_EMAIL, ADMIN_EMAIL);
         jdbcTemplate.execute("DELETE FROM branch_operating_hours");
         jdbcTemplate.execute("DELETE FROM branches WHERE id = '" + BRANCH_ID + "'");
-        jdbcTemplate.update("DELETE FROM users WHERE email IN (?, ?)", CUSTOMER_EMAIL, ADMIN_EMAIL);
 
         jdbcTemplate.update(
                 "INSERT INTO users (id, email, password_hash, first_name, last_name, role, active, created_at, updated_at) " +
                 "VALUES (RANDOM_UUID(), ?, ?, 'Lifecycle', 'Customer', 'CUSTOMER', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                 CUSTOMER_EMAIL, PW_HASH);
-        jdbcTemplate.update(
-                "INSERT INTO users (id, email, password_hash, first_name, last_name, role, active, created_at, updated_at) " +
-                "VALUES (RANDOM_UUID(), ?, ?, 'Lifecycle', 'Admin', 'BRANCH_ADMIN', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                ADMIN_EMAIL, PW_HASH);
 
         jdbcTemplate.update(
                 "INSERT INTO branches (id, branch_code, name, address, city, province, postal_code, active, max_concurrent_appointments, created_at, updated_at) " +
                 "VALUES (?, 'LCI001', 'Lifecycle Branch', '1 Test St', 'Cape Town', 'Western Cape', '8001', true, 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                 BRANCH_ID);
+
+        jdbcTemplate.update(
+                "INSERT INTO users (id, email, password_hash, first_name, last_name, role, branch_id, active, created_at, updated_at) " +
+                "VALUES (RANDOM_UUID(), ?, ?, 'Lifecycle', 'Admin', 'BRANCH_ADMIN', ?, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                ADMIN_EMAIL, PW_HASH, UUID.fromString(BRANCH_ID));
 
         for (DayOfWeek day : new DayOfWeek[]{DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
                 DayOfWeek.THURSDAY, DayOfWeek.FRIDAY}) {

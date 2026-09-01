@@ -59,6 +59,7 @@ class AppointmentLifecycleServiceTest {
     private static final UUID APPOINTMENT_ID = UUID.randomUUID();
     private static final UUID CUSTOMER_ID = UUID.randomUUID();
     private static final UUID BRANCH_ADMIN_ID = UUID.randomUUID();
+    private static final UUID BRANCH_ID = UUID.randomUUID();
     private static final String CUSTOMER_EMAIL = "customer@test.com";
     private static final String BRANCH_ADMIN_EMAIL = "admin@test.com";
     private static final String SYSTEM_ADMIN_EMAIL = "sysadmin@test.com";
@@ -78,6 +79,7 @@ class AppointmentLifecycleServiceTest {
         ReflectionTestUtils.setField(branchAdmin, "role", Role.BRANCH_ADMIN);
         ReflectionTestUtils.setField(branchAdmin, "firstName", "Admin");
         ReflectionTestUtils.setField(branchAdmin, "lastName", "User");
+        ReflectionTestUtils.setField(branchAdmin, "branchId", BRANCH_ID);
 
         systemAdmin = new User();
         ReflectionTestUtils.setField(systemAdmin, "id", UUID.randomUUID());
@@ -87,7 +89,7 @@ class AppointmentLifecycleServiceTest {
         ReflectionTestUtils.setField(systemAdmin, "lastName", "Admin");
 
         Branch branch = new Branch();
-        ReflectionTestUtils.setField(branch, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(branch, "id", BRANCH_ID);
         ReflectionTestUtils.setField(branch, "name", "Test Branch");
 
         BankingService service = new BankingService();

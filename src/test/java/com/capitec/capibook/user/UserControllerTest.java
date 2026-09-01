@@ -38,7 +38,11 @@ class UserControllerTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
+        jdbcTemplate.execute("DELETE FROM notifications");
+        jdbcTemplate.execute("DELETE FROM appointment_history");
+        jdbcTemplate.execute("DELETE FROM appointments");
         jdbcTemplate.execute("DELETE FROM refresh_tokens");
+        jdbcTemplate.execute("UPDATE users SET branch_id = NULL WHERE branch_id IS NOT NULL");
         jdbcTemplate.execute("DELETE FROM users");
     }
 
