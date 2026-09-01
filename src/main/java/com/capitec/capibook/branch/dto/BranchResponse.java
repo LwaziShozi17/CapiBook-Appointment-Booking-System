@@ -21,6 +21,7 @@ public record BranchResponse(
         String phoneNumber,
         String email,
         boolean active,
+        int maxConcurrentAppointments,
         List<OperatingHoursEntry> operatingHours,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -39,6 +40,7 @@ public record BranchResponse(
                 branch.getPhoneNumber(),
                 branch.getEmail(),
                 branch.isActive(),
+                branch.getMaxConcurrentAppointments(),
                 hours.stream().map(OperatingHoursEntry::from).toList(),
                 branch.getCreatedAt(),
                 branch.getUpdatedAt()

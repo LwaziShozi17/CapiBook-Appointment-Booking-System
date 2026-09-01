@@ -40,6 +40,9 @@ public class BranchService {
         branch.setLongitude(request.longitude());
         branch.setPhoneNumber(request.phoneNumber());
         branch.setEmail(request.email());
+        if (request.maxConcurrentAppointments() != null) {
+            branch.setMaxConcurrentAppointments(request.maxConcurrentAppointments());
+        }
         Branch saved = branchRepository.save(branch);
         return BranchResponse.from(saved, List.of());
     }
@@ -68,6 +71,9 @@ public class BranchService {
         branch.setLongitude(request.longitude());
         branch.setPhoneNumber(request.phoneNumber());
         branch.setEmail(request.email());
+        if (request.maxConcurrentAppointments() != null) {
+            branch.setMaxConcurrentAppointments(request.maxConcurrentAppointments());
+        }
         Branch saved = branchRepository.save(branch);
         return BranchResponse.from(saved, operatingHoursRepository.findByBranchId(id));
     }

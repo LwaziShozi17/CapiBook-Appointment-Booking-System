@@ -1,6 +1,7 @@
 package com.capitec.capibook.branch.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
@@ -16,5 +17,6 @@ public record CreateBranchRequest(
         BigDecimal latitude,
         BigDecimal longitude,
         String phoneNumber,
-        @Email String email
+        @Email String email,
+        @Min(1) Integer maxConcurrentAppointments
 ) {}

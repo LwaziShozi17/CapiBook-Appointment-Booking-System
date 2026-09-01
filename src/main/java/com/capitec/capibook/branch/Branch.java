@@ -44,6 +44,9 @@ public class Branch {
     private String email;
 
     @Column(nullable = false)
+    private int maxConcurrentAppointments = 1;
+
+    @Column(nullable = false)
     private boolean active;
 
     @Column(nullable = false, updatable = false)
@@ -96,6 +99,9 @@ public class Branch {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public int getMaxConcurrentAppointments() { return maxConcurrentAppointments; }
+    public void setMaxConcurrentAppointments(int maxConcurrentAppointments) { this.maxConcurrentAppointments = maxConcurrentAppointments; }
 
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }

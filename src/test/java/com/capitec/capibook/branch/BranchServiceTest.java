@@ -57,7 +57,7 @@ class BranchServiceTest {
 
         CreateBranchRequest request = new CreateBranchRequest(
                 "CPT001", "Cape Town Main", "1 Adderley Street",
-                "Cape Town", "Western Cape", "8001", null, null, null, null);
+                "Cape Town", "Western Cape", "8001", null, null, null, null, null);
 
         BranchResponse response = branchService.create(request);
 
@@ -72,7 +72,7 @@ class BranchServiceTest {
 
         CreateBranchRequest request = new CreateBranchRequest(
                 "CPT001", "Cape Town Main", "1 Adderley Street",
-                "Cape Town", "Western Cape", "8001", null, null, null, null);
+                "Cape Town", "Western Cape", "8001", null, null, null, null, null);
 
         assertThatThrownBy(() -> branchService.create(request))
                 .isInstanceOf(DuplicateResourceException.class)
@@ -110,7 +110,7 @@ class BranchServiceTest {
 
         UpdateBranchRequest request = new UpdateBranchRequest(
                 "Updated Name", "New Address", "Johannesburg",
-                "Gauteng", "2000", null, null, null, null);
+                "Gauteng", "2000", null, null, null, null, null);
 
         branchService.update(id, request);
 
