@@ -15,7 +15,7 @@
 | Phase | Title                                 | Status      |
 |-------|---------------------------------------|-------------|
 | 0     | Project Foundation                    | COMPLETE    |
-| 1     | Authentication & User Management      | NOT STARTED |
+| 1     | Authentication & User Management      | COMPLETE    |
 | 2     | Branch & Banking Service Management   | NOT STARTED |
 | 3     | Availability & Time Slot Management   | NOT STARTED |
 | 4     | Core Appointment Booking              | NOT STARTED |
@@ -443,7 +443,7 @@ testable, and deployable starting point.
 
 ## PHASE 1 — AUTHENTICATION & USER MANAGEMENT
 
-**Status:** NOT STARTED
+**Status:** COMPLETE
 **Depends on:** Phase 0 COMPLETE
 **Blocks:** Phase 2 and all subsequent phases
 
