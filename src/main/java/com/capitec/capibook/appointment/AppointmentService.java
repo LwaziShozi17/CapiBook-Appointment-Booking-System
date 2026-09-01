@@ -1,7 +1,9 @@
 package com.capitec.capibook.appointment;
 
+import com.capitec.capibook.appointment.dto.AppointmentHistoryResponse;
 import com.capitec.capibook.appointment.dto.AppointmentResponse;
 import com.capitec.capibook.appointment.dto.CreateAppointmentRequest;
+import com.capitec.capibook.appointment.dto.RescheduleAppointmentRequest;
 import com.capitec.capibook.availability.PublicHolidayRepository;
 import com.capitec.capibook.branch.Branch;
 import com.capitec.capibook.branch.BranchOperatingHours;
@@ -9,6 +11,7 @@ import com.capitec.capibook.branch.BranchOperatingHoursRepository;
 import com.capitec.capibook.branch.BranchRepository;
 import com.capitec.capibook.common.PageResponse;
 import com.capitec.capibook.exception.AppointmentConflictException;
+import com.capitec.capibook.exception.InvalidStatusTransitionException;
 import com.capitec.capibook.exception.ResourceNotFoundException;
 import com.capitec.capibook.servicecatalog.BankingService;
 import com.capitec.capibook.servicecatalog.BankingServiceRepository;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +36,12 @@ public class AppointmentService {
     static final List<AppointmentStatus> ACTIVE_STATUSES =
             List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED);
 
+    private static final List<AppointmentStatus> TERMINAL_STATUSES =
+            List.of(AppointmentStatus.CANCELLED, AppointmentStatus.COMPLETED,
+                    AppointmentStatus.NO_SHOW, AppointmentStatus.RESCHEDULED);
+
     private final AppointmentRepository appointmentRepository;
+    private final AppointmentHistoryRepository appointmentHistoryRepository;
     private final BranchRepository branchRepository;
     private final BankingServiceRepository bankingServiceRepository;
     private final BranchOperatingHoursRepository operatingHoursRepository;
@@ -40,12 +49,14 @@ public class AppointmentService {
     private final UserRepository userRepository;
 
     public AppointmentService(AppointmentRepository appointmentRepository,
+                              AppointmentHistoryRepository appointmentHistoryRepository,
                               BranchRepository branchRepository,
                               BankingServiceRepository bankingServiceRepository,
                               BranchOperatingHoursRepository operatingHoursRepository,
                               PublicHolidayRepository publicHolidayRepository,
                               UserRepository userRepository) {
         this.appointmentRepository = appointmentRepository;
+        this.appointmentHistoryRepository = appointmentHistoryRepository;
         this.branchRepository = branchRepository;
         this.bankingServiceRepository = bankingServiceRepository;
         this.operatingHoursRepository = operatingHoursRepository;
@@ -63,8 +74,7 @@ public class AppointmentService {
      */
     @Transactional
     public AppointmentResponse createAppointment(String customerEmail, CreateAppointmentRequest request) {
-        User customer = userRepository.findByEmail(customerEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User customer = loadUser(customerEmail);
 
         Branch branch = branchRepository.findByIdAndActiveTrueForUpdate(request.branchId())
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found: " + request.branchId()));
@@ -124,26 +134,228 @@ public class AppointmentService {
 
     @Transactional(readOnly = true)
     public AppointmentResponse getAppointmentById(UUID appointmentId, String callerEmail) {
-        User caller = userRepository.findByEmail(callerEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found: " + appointmentId));
-
-        if (caller.getRole() == Role.CUSTOMER && !appointment.getCustomer().getId().equals(caller.getId())) {
-            throw new AccessDeniedException("Access denied");
-        }
-
+        User caller = loadUser(callerEmail);
+        Appointment appointment = loadAppointment(appointmentId);
+        enforceOwnerOrAdmin(appointment, caller);
         return toResponse(appointment);
     }
 
     @Transactional(readOnly = true)
     public PageResponse<AppointmentResponse> getMyAppointments(String customerEmail, Pageable pageable) {
-        User customer = userRepository.findByEmail(customerEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User customer = loadUser(customerEmail);
 
         Page<Appointment> page = appointmentRepository.findByCustomerId(customer.getId(), pageable);
         return PageResponse.from(page.map(this::toResponse));
+    }
+
+    @Transactional
+    public AppointmentResponse cancelAppointment(UUID appointmentId, String callerEmail, String reason) {
+        User caller = loadUser(callerEmail);
+        Appointment appointment = loadAppointment(appointmentId);
+        enforceOwnerOrAdmin(appointment, caller);
+
+        AppointmentStatus current = appointment.getStatus();
+        if (TERMINAL_STATUSES.contains(current)) {
+            throw new InvalidStatusTransitionException(
+                    "Cannot cancel an appointment with status: " + current);
+        }
+        if (current != AppointmentStatus.PENDING && current != AppointmentStatus.CONFIRMED) {
+            throw new InvalidStatusTransitionException(
+                    "Cannot cancel an appointment with status: " + current);
+        }
+        if (caller.getRole() == Role.CUSTOMER && current == AppointmentStatus.CONFIRMED) {
+            LocalDateTime appointmentDateTime = LocalDateTime.of(
+                    appointment.getAppointmentDate(), appointment.getStartTime());
+            if (!appointmentDateTime.isAfter(LocalDateTime.now())) {
+                throw new InvalidStatusTransitionException(
+                        "Cannot cancel a confirmed appointment that has already passed");
+            }
+        }
+
+        return transitionStatus(appointment, caller, AppointmentStatus.CANCELLED, reason);
+    }
+
+    @Transactional
+    public AppointmentResponse confirmAppointment(UUID appointmentId, String callerEmail, String reason) {
+        User caller = loadUser(callerEmail);
+        Appointment appointment = loadAppointment(appointmentId);
+        requireAdminRole(caller);
+
+        if (appointment.getStatus() != AppointmentStatus.PENDING) {
+            throw new InvalidStatusTransitionException(
+                    "Only PENDING appointments can be confirmed. Current status: " + appointment.getStatus());
+        }
+
+        return transitionStatus(appointment, caller, AppointmentStatus.CONFIRMED, reason);
+    }
+
+    @Transactional
+    public AppointmentResponse completeAppointment(UUID appointmentId, String callerEmail, String reason) {
+        User caller = loadUser(callerEmail);
+        Appointment appointment = loadAppointment(appointmentId);
+        requireAdminRole(caller);
+
+        if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
+            throw new InvalidStatusTransitionException(
+                    "Only CONFIRMED appointments can be completed. Current status: " + appointment.getStatus());
+        }
+
+        return transitionStatus(appointment, caller, AppointmentStatus.COMPLETED, reason);
+    }
+
+    @Transactional
+    public AppointmentResponse markNoShow(UUID appointmentId, String callerEmail, String reason) {
+        User caller = loadUser(callerEmail);
+        Appointment appointment = loadAppointment(appointmentId);
+        requireAdminRole(caller);
+
+        if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
+            throw new InvalidStatusTransitionException(
+                    "Only CONFIRMED appointments can be marked as no-show. Current status: " + appointment.getStatus());
+        }
+
+        return transitionStatus(appointment, caller, AppointmentStatus.NO_SHOW, reason);
+    }
+
+    @Transactional
+    public AppointmentResponse rescheduleAppointment(UUID appointmentId, String callerEmail,
+                                                     RescheduleAppointmentRequest request) {
+        User caller = loadUser(callerEmail);
+        Appointment original = loadAppointment(appointmentId);
+        enforceOwnerOrAdmin(original, caller);
+
+        if (original.getStatus() != AppointmentStatus.CONFIRMED) {
+            throw new InvalidStatusTransitionException(
+                    "Only CONFIRMED appointments can be rescheduled. Current status: " + original.getStatus());
+        }
+
+        Branch branch = branchRepository.findByIdAndActiveTrueForUpdate(request.branchId())
+                .orElseThrow(() -> new ResourceNotFoundException("Branch not found: " + request.branchId()));
+
+        BankingService service = bankingServiceRepository.findByIdAndActiveTrue(request.serviceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found: " + request.serviceId()));
+
+        LocalDate date = request.appointmentDate();
+        LocalTime startTime = request.startTime();
+        LocalTime endTime = startTime.plusMinutes(service.getDurationMinutes());
+
+        if (publicHolidayRepository.existsByDate(date)) {
+            throw new IllegalArgumentException("Cannot reschedule to a public holiday");
+        }
+
+        BranchOperatingHours hours = operatingHoursRepository
+                .findByBranchIdAndDayOfWeek(branch.getId(), date.getDayOfWeek())
+                .orElseThrow(() -> new IllegalArgumentException("Branch is closed on the requested day"));
+
+        if (hours.isClosed()) {
+            throw new IllegalArgumentException("Branch is closed on the requested day");
+        }
+        if (startTime.isBefore(hours.getOpenTime())) {
+            throw new IllegalArgumentException("Requested time slot is outside branch operating hours");
+        }
+        if (endTime.isAfter(hours.getCloseTime())) {
+            throw new IllegalArgumentException("Requested time slot extends beyond branch closing time");
+        }
+
+        long customerConflict = appointmentRepository.countActiveByCustomerAndDateTime(
+                caller.getRole() == Role.CUSTOMER ? caller.getId() : original.getCustomer().getId(),
+                date, startTime, ACTIVE_STATUSES);
+        if (customerConflict > 0) {
+            throw new AppointmentConflictException("Customer already has an appointment at this date and time");
+        }
+
+        long booked = appointmentRepository.countBookedSlotsAt(
+                branch.getId(), date, startTime, ACTIVE_STATUSES);
+        if (booked >= branch.getMaxConcurrentAppointments()) {
+            throw new AppointmentConflictException("This time slot is no longer available");
+        }
+
+        recordHistory(original, caller, AppointmentStatus.RESCHEDULED, request.reason());
+        original.setStatus(AppointmentStatus.RESCHEDULED);
+        appointmentRepository.save(original);
+
+        Appointment rescheduled = new Appointment();
+        rescheduled.setCustomer(original.getCustomer());
+        rescheduled.setBranch(branch);
+        rescheduled.setService(service);
+        rescheduled.setAppointmentDate(date);
+        rescheduled.setStartTime(startTime);
+        rescheduled.setEndTime(endTime);
+        rescheduled.setStatus(AppointmentStatus.PENDING);
+        rescheduled.setReferenceNumber(generateReferenceNumber(date.getYear()));
+        rescheduled.setNotes(request.notes());
+
+        return toResponse(appointmentRepository.save(rescheduled));
+    }
+
+    @Transactional(readOnly = true)
+    public List<AppointmentHistoryResponse> getAppointmentHistory(UUID appointmentId, String callerEmail) {
+        User caller = loadUser(callerEmail);
+        Appointment appointment = loadAppointment(appointmentId);
+
+        if (caller.getRole() == Role.CUSTOMER && !appointment.getCustomer().getId().equals(caller.getId())) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        return appointmentHistoryRepository.findByAppointmentIdOrderByChangedAtAsc(appointmentId)
+                .stream()
+                .map(this::toHistoryResponse)
+                .toList();
+    }
+
+    private AppointmentResponse transitionStatus(Appointment appointment, User changedBy,
+                                                  AppointmentStatus newStatus, String reason) {
+        recordHistory(appointment, changedBy, newStatus, reason);
+        appointment.setStatus(newStatus);
+        return toResponse(appointmentRepository.save(appointment));
+    }
+
+    private void recordHistory(Appointment appointment, User changedBy,
+                                AppointmentStatus newStatus, String reason) {
+        AppointmentHistory history = new AppointmentHistory();
+        history.setAppointment(appointment);
+        history.setPreviousStatus(appointment.getStatus());
+        history.setNewStatus(newStatus);
+        history.setChangedBy(changedBy);
+        history.setChangeReason(reason);
+        appointmentHistoryRepository.save(history);
+    }
+
+    private User loadUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    private Appointment loadAppointment(UUID id) {
+        return appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found: " + id));
+    }
+
+    private void enforceOwnerOrAdmin(Appointment appointment, User caller) {
+        if (caller.getRole() == Role.CUSTOMER
+                && !appointment.getCustomer().getId().equals(caller.getId())) {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    private void requireAdminRole(User caller) {
+        if (caller.getRole() != Role.BRANCH_ADMIN && caller.getRole() != Role.SYSTEM_ADMIN) {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    private AppointmentHistoryResponse toHistoryResponse(AppointmentHistory h) {
+        return new AppointmentHistoryResponse(
+                h.getId(),
+                h.getAppointment().getId(),
+                h.getPreviousStatus(),
+                h.getNewStatus(),
+                h.getChangedBy().getId(),
+                h.getChangedBy().getFirstName(),
+                h.getChangedBy().getLastName(),
+                h.getChangeReason(),
+                h.getChangedAt()
+        );
     }
 
     private AppointmentResponse toResponse(Appointment a) {
