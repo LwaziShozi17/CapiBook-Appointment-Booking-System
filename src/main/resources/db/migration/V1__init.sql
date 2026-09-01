@@ -1,0 +1,3 @@
+/-- Phase 0: baseline migration
+-- Schema objects are added in subsequent phases.
+-- This migration establishes the Flyway baseline for the project.
