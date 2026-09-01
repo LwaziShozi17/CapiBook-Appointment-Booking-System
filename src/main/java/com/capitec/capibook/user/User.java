@@ -31,6 +31,9 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(name = "branch_id")
+    private UUID branchId;
+
     @Column(nullable = false)
     private boolean active;
 
@@ -75,6 +78,9 @@ public class User {
 
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+
+    public UUID getBranchId() { return branchId; }
+    public void setBranchId(UUID branchId) { this.branchId = branchId; }
 
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }

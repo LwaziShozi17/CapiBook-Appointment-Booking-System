@@ -37,4 +37,33 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     @Query("SELECT a FROM Appointment a WHERE a.customer.id = :customerId")
     Page<Appointment> findByCustomerId(@Param("customerId") UUID customerId, Pageable pageable);
+
+    @Query("SELECT a FROM Appointment a WHERE a.branch.id = :branchId")
+    Page<Appointment> findByBranchId(@Param("branchId") UUID branchId, Pageable pageable);
+
+    @Query("SELECT COUNT(a) FROM Appointment a " +
+           "WHERE a.branch.id = :branchId " +
+           "AND a.appointmentDate BETWEEN :from AND :to " +
+           "AND a.status IN :statuses")
+    long countByBranchAndDateRangeAndStatuses(
+            @Param("branchId") UUID branchId,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to,
+            @Param("statuses") List<AppointmentStatus> statuses);
+
+    @Query("SELECT COUNT(a) FROM Appointment a " +
+           "WHERE a.appointmentDate BETWEEN :from AND :to " +
+           "AND a.status = :status")
+    long countByDateRangeAndStatus(
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to,
+            @Param("status") AppointmentStatus status);
+
+    @Query("SELECT a.service.id, a.service.name, COUNT(a) FROM Appointment a " +
+           "WHERE a.appointmentDate BETWEEN :from AND :to " +
+           "GROUP BY a.service.id, a.service.name " +
+           "ORDER BY COUNT(a) DESC")
+    List<Object[]> findServicePopularity(
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to);
 }

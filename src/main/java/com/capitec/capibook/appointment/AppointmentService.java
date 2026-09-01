@@ -198,6 +198,7 @@ public class AppointmentService {
         User caller = loadUser(callerEmail);
         Appointment appointment = loadAppointment(appointmentId);
         requireAdminRole(caller);
+        enforceBranchAdminBranchRestriction(appointment, caller);
 
         if (appointment.getStatus() != AppointmentStatus.PENDING) {
             throw new InvalidStatusTransitionException(
@@ -212,6 +213,7 @@ public class AppointmentService {
         User caller = loadUser(callerEmail);
         Appointment appointment = loadAppointment(appointmentId);
         requireAdminRole(caller);
+        enforceBranchAdminBranchRestriction(appointment, caller);
 
         if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
             throw new InvalidStatusTransitionException(
@@ -226,6 +228,7 @@ public class AppointmentService {
         User caller = loadUser(callerEmail);
         Appointment appointment = loadAppointment(appointmentId);
         requireAdminRole(caller);
+        enforceBranchAdminBranchRestriction(appointment, caller);
 
         if (appointment.getStatus() != AppointmentStatus.CONFIRMED) {
             throw new InvalidStatusTransitionException(
@@ -357,15 +360,31 @@ public class AppointmentService {
     }
 
     private void enforceOwnerOrAdmin(Appointment appointment, User caller) {
-        if (caller.getRole() == Role.CUSTOMER
-                && !appointment.getCustomer().getId().equals(caller.getId())) {
-            throw new AccessDeniedException("Access denied");
+        if (caller.getRole() == Role.CUSTOMER) {
+            if (!appointment.getCustomer().getId().equals(caller.getId())) {
+                throw new AccessDeniedException("Access denied");
+            }
+        } else if (caller.getRole() == Role.BRANCH_ADMIN) {
+            if (caller.getBranchId() == null
+                    || !appointment.getBranch().getId().equals(caller.getBranchId())) {
+                throw new AccessDeniedException("Access denied");
+            }
         }
+        // SYSTEM_ADMIN: no restriction
     }
 
     private void requireAdminRole(User caller) {
         if (caller.getRole() != Role.BRANCH_ADMIN && caller.getRole() != Role.SYSTEM_ADMIN) {
             throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    private void enforceBranchAdminBranchRestriction(Appointment appointment, User caller) {
+        if (caller.getRole() == Role.BRANCH_ADMIN) {
+            if (caller.getBranchId() == null
+                    || !appointment.getBranch().getId().equals(caller.getBranchId())) {
+                throw new AccessDeniedException("Access denied");
+            }
         }
     }
 

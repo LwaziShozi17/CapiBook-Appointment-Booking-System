@@ -22,7 +22,7 @@
 | 5     | Appointment Lifecycle Management      | COMPLETE    |
 | 6     | Kafka Event-Driven Architecture       | COMPLETE    |
 | 7     | Notifications & Communication         | COMPLETE    |
-| 8     | Admin Management & Dashboard          | NOT STARTED |
+| 8     | Admin Management & Dashboard          | IN PROGRESS |
 | 9     | Customer Frontend                     | NOT STARTED |
 | 10    | Admin Frontend                        | NOT STARTED |
 | 11    | Testing & Quality Assurance           | NOT STARTED |

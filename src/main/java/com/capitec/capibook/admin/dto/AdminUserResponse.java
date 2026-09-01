@@ -1,11 +1,11 @@
-package com.capitec.capibook.user.dto;
+package com.capitec.capibook.admin.dto;
 
 import com.capitec.capibook.user.User;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record UserProfileResponse(
+public record AdminUserResponse(
         UUID id,
         String email,
         String firstName,
@@ -13,10 +13,11 @@ public record UserProfileResponse(
         String phoneNumber,
         String role,
         UUID branchId,
+        boolean active,
         LocalDateTime createdAt
 ) {
-    public static UserProfileResponse from(User user) {
-        return new UserProfileResponse(
+    public static AdminUserResponse from(User user) {
+        return new AdminUserResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
@@ -24,6 +25,7 @@ public record UserProfileResponse(
                 user.getPhoneNumber(),
                 user.getRole().name(),
                 user.getBranchId(),
+                user.isActive(),
                 user.getCreatedAt()
         );
     }

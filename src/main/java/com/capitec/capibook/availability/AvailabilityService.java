@@ -5,6 +5,7 @@ import com.capitec.capibook.appointment.AppointmentStatus;
 import com.capitec.capibook.availability.dto.AvailabilityResponse;
 import com.capitec.capibook.availability.dto.SlotResponse;
 import com.capitec.capibook.branch.Branch;
+import com.capitec.capibook.branch.BranchAvailabilityExceptionRepository;
 import com.capitec.capibook.branch.BranchOperatingHours;
 import com.capitec.capibook.branch.BranchOperatingHoursRepository;
 import com.capitec.capibook.branch.BranchRepository;
@@ -33,17 +34,20 @@ public class AvailabilityService {
     private final BranchOperatingHoursRepository operatingHoursRepository;
     private final PublicHolidayRepository publicHolidayRepository;
     private final AppointmentRepository appointmentRepository;
+    private final BranchAvailabilityExceptionRepository availabilityExceptionRepository;
 
     public AvailabilityService(BranchRepository branchRepository,
                                BankingServiceRepository bankingServiceRepository,
                                BranchOperatingHoursRepository operatingHoursRepository,
                                PublicHolidayRepository publicHolidayRepository,
-                               AppointmentRepository appointmentRepository) {
+                               AppointmentRepository appointmentRepository,
+                               BranchAvailabilityExceptionRepository availabilityExceptionRepository) {
         this.branchRepository = branchRepository;
         this.bankingServiceRepository = bankingServiceRepository;
         this.operatingHoursRepository = operatingHoursRepository;
         this.publicHolidayRepository = publicHolidayRepository;
         this.appointmentRepository = appointmentRepository;
+        this.availabilityExceptionRepository = availabilityExceptionRepository;
     }
 
     public AvailabilityResponse getAvailability(UUID branchId, UUID serviceId, LocalDate date) {
@@ -54,6 +58,10 @@ public class AvailabilityService {
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found: " + serviceId));
 
         if (publicHolidayRepository.existsByDate(date)) {
+            return new AvailabilityResponse(branchId, serviceId, date, List.of());
+        }
+
+        if (availabilityExceptionRepository.existsByBranchIdAndExceptionDate(branchId, date)) {
             return new AvailabilityResponse(branchId, serviceId, date, List.of());
         }
 
