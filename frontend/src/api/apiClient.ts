@@ -1,10 +1,10 @@
 import axios from 'axios'
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api/v1'
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api/v1',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  baseURL: BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
 })
 
 apiClient.interceptors.request.use((config) => {
@@ -14,5 +14,57 @@ apiClient.interceptors.request.use((config) => {
   }
   return config
 })
+
+let isRefreshing = false
+let queue: Array<(token: string) => void> = []
+
+function processQueue(token: string) {
+  queue.forEach((cb) => cb(token))
+  queue = []
+}
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config
+    if (error.response?.status !== 401 || original._retry) {
+      return Promise.reject(error)
+    }
+    original._retry = true
+
+    const refreshToken = localStorage.getItem('refreshToken')
+    if (!refreshToken) {
+      localStorage.removeItem('accessToken')
+      window.location.href = '/login'
+      return Promise.reject(error)
+    }
+
+    if (isRefreshing) {
+      return new Promise((resolve) => {
+        queue.push((token) => {
+          original.headers.Authorization = `Bearer ${token}`
+          resolve(apiClient(original))
+        })
+      })
+    }
+
+    isRefreshing = true
+    try {
+      const { data } = await axios.post(`${BASE_URL}/auth/refresh`, { refreshToken })
+      const newToken: string = data.accessToken
+      localStorage.setItem('accessToken', newToken)
+      processQueue(newToken)
+      original.headers.Authorization = `Bearer ${newToken}`
+      return apiClient(original)
+    } catch {
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('refreshToken')
+      window.location.href = '/login'
+      return Promise.reject(error)
+    } finally {
+      isRefreshing = false
+    }
+  }
+)
 
 export default apiClient
