@@ -1,19 +1,69 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
+import Navbar from './components/Navbar'
+import ProtectedRoute from './components/ProtectedRoute'
+import HomePage from './pages/HomePage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import ProfilePage from './pages/ProfilePage'
+import BookPage from './pages/BookPage'
+import BookingConfirmationPage from './pages/BookingConfirmationPage'
+import AppointmentsPage from './pages/AppointmentsPage'
+import AppointmentDetailPage from './pages/AppointmentDetailPage'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<div className="p-8 text-2xl font-bold">CapiBook — Coming Soon</div>} />
-        <Route path="/login" element={<div className="p-8">Login — Phase 1</div>} />
-        <Route path="/register" element={<div className="p-8">Register — Phase 1</div>} />
-        <Route path="/profile" element={<div className="p-8">Profile — Phase 1</div>} />
-        <Route path="/book" element={<div className="p-8">Book Appointment — Phase 4</div>} />
-        <Route path="/appointments" element={<div className="p-8">My Appointments — Phase 4</div>} />
-        <Route path="/appointments/:id" element={<div className="p-8">Appointment Detail — Phase 4</div>} />
-        <Route path="/admin" element={<div className="p-8">Admin Dashboard — Phase 10</div>} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/book"
+            element={
+              <ProtectedRoute>
+                <BookPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/booking-confirmation"
+            element={
+              <ProtectedRoute>
+                <BookingConfirmationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointments"
+            element={
+              <ProtectedRoute>
+                <AppointmentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/appointments/:id"
+            element={
+              <ProtectedRoute>
+                <AppointmentDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/admin/*" element={<div className="p-8">Admin — Phase 10</div>} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
 
