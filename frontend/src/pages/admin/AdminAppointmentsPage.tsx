@@ -5,12 +5,12 @@ import { getBranches } from '../../api/branches'
 import type { AppointmentResponse, AppointmentStatus, BranchResponse, PageResponse } from '../../types'
 
 const STATUS_STYLES: Record<AppointmentStatus, string> = {
-  PENDING: 'bg-yellow-100 text-yellow-800',
-  CONFIRMED: 'bg-blue-100 text-blue-800',
-  CANCELLED: 'bg-red-100 text-red-700',
-  COMPLETED: 'bg-green-100 text-green-800',
-  NO_SHOW: 'bg-gray-100 text-gray-600',
-  RESCHEDULED: 'bg-purple-100 text-purple-700',
+  PENDING: 'bg-[#fff3e0] text-[#d66700]',
+  CONFIRMED: 'bg-[#f2fafd] text-[#009de0]',
+  CANCELLED: 'bg-[#fdf2f4] text-[#a5132a]',
+  COMPLETED: 'bg-[#f0f7e6] text-[#68a200]',
+  NO_SHOW: 'bg-[#efefef] text-[#7c7c7c]',
+  RESCHEDULED: 'bg-[#edf8fd] text-[#00486d]',
 }
 
 export default function AdminAppointmentsPage() {
@@ -70,8 +70,8 @@ export default function AdminAppointmentsPage() {
     <div className="px-8 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Appointments</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-2xl font-bold text-[#383634]">Appointments</h1>
+          <p className="text-sm text-[#7c7c7c] mt-0.5">
             {isSystemAdmin ? 'All branches' : 'Your branch'}
           </p>
         </div>
@@ -79,7 +79,7 @@ export default function AdminAppointmentsPage() {
           <select
             value={selectedBranch}
             onChange={(e) => { setSelectedBranch(e.target.value); setCurrentPage(0) }}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="border border-[#e1e1e1] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#009de0]"
           >
             <option value="">All branches</option>
             {branches.map((b) => (
@@ -90,23 +90,23 @@ export default function AdminAppointmentsPage() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-4">
+        <div className="bg-[#fdf2f4] border border-[#fde8eb] text-[#a5132a] text-sm rounded-lg px-4 py-3 mb-4">
           {error}
         </div>
       )}
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-white border border-[#e1e1e1] rounded-xl overflow-hidden">
         {loading ? (
           <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-[#009de0] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : appointments.length === 0 ? (
-          <div className="px-5 py-12 text-center text-sm text-gray-400">No appointments found.</div>
+          <div className="px-5 py-12 text-center text-sm text-[#abb3b7]">No appointments found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-xs text-gray-500">
+                <tr className="border-b border-[#e1e1e1] text-xs text-[#7c7c7c]">
                   <th className="text-left px-5 py-3 font-medium">Reference</th>
                   <th className="text-left px-4 py-3 font-medium">Customer</th>
                   <th className="text-left px-4 py-3 font-medium">Service</th>
@@ -118,14 +118,14 @@ export default function AdminAppointmentsPage() {
               </thead>
               <tbody>
                 {appointments.map((appt) => (
-                  <tr key={appt.id} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="px-5 py-3 font-mono text-xs text-gray-500">{appt.referenceNumber}</td>
-                    <td className="px-4 py-3 text-gray-700">
+                  <tr key={appt.id} className="border-b border-[#e1e1e1] hover:bg-[#f8f8f9]">
+                    <td className="px-5 py-3 font-mono text-xs text-[#abb3b7]">{appt.referenceNumber}</td>
+                    <td className="px-4 py-3 text-[#383634]">
                       {appt.customerFirstName} {appt.customerLastName}
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{appt.serviceName}</td>
-                    <td className="px-4 py-3 text-gray-500">{appt.branchName}</td>
-                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                    <td className="px-4 py-3 text-[#383634]">{appt.serviceName}</td>
+                    <td className="px-4 py-3 text-[#7c7c7c]">{appt.branchName}</td>
+                    <td className="px-4 py-3 text-[#7c7c7c] whitespace-nowrap">
                       {appt.appointmentDate} {appt.startTime}
                     </td>
                     <td className="px-4 py-3">
@@ -182,17 +182,17 @@ export default function AdminAppointmentsPage() {
           <button
             disabled={currentPage === 0}
             onClick={() => setCurrentPage((p) => p - 1)}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+            className="px-4 py-2 text-sm border border-[#e1e1e1] rounded-lg disabled:opacity-40 hover:bg-[#f8f8f9]"
           >
             Previous
           </button>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-[#7c7c7c]">
             Page {currentPage + 1} of {page.totalPages}
           </span>
           <button
             disabled={currentPage >= page.totalPages - 1}
             onClick={() => setCurrentPage((p) => p + 1)}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+            className="px-4 py-2 text-sm border border-[#e1e1e1] rounded-lg disabled:opacity-40 hover:bg-[#f8f8f9]"
           >
             Next
           </button>
@@ -214,10 +214,10 @@ function ActionBtn({
   onClick: () => void
 }) {
   const colors = {
-    blue: 'bg-blue-50 text-blue-700 hover:bg-blue-100',
-    green: 'bg-green-50 text-green-700 hover:bg-green-100',
-    gray: 'bg-gray-100 text-gray-600 hover:bg-gray-200',
-    red: 'bg-red-50 text-red-600 hover:bg-red-100',
+    blue: 'bg-[#f2fafd] text-[#009de0] hover:bg-[#e0f4fc]',
+    green: 'bg-[#f0f7e6] text-[#68a200] hover:bg-[#e6f2d8]',
+    gray: 'bg-[#efefef] text-[#7c7c7c] hover:bg-[#e1e1e1]',
+    red: 'bg-[#fdf2f4] text-[#a5132a] hover:bg-[#f9e5e8]',
   }
   return (
     <button

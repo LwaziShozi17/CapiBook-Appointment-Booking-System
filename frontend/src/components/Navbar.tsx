@@ -14,13 +14,13 @@ export default function Navbar() {
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `text-sm font-medium transition-colors ${
-      isActive ? 'text-purple-600' : 'text-gray-600 hover:text-purple-600'
+      isActive ? 'text-white border-b-2 border-white pb-0.5' : 'text-white/80 hover:text-white'
     }`
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav className="sticky top-0 z-50 shadow-sm" style={{ background: 'linear-gradient(90deg, #0084d5 0%, #009de0 100%)' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-        <Link to="/" className="text-xl font-semibold text-gray-900 hover:text-purple-600 transition-colors">
+        <Link to="/" className="text-xl font-semibold text-white hover:text-white/90 transition-colors tracking-tight">
           CapiBook
         </Link>
 
@@ -43,12 +43,12 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           {isAuthenticated ? (
             <>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-white/80">
                 {user?.firstName} {user?.lastName}
               </span>
               <button
                 onClick={handleLogout}
-                className="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors"
+                className="text-sm font-medium text-white/80 hover:text-white transition-colors"
               >
                 Logout
               </button>
@@ -57,13 +57,13 @@ export default function Navbar() {
             <>
               <Link
                 to="/login"
-                className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors"
+                className="text-sm font-medium text-white/80 hover:text-white transition-colors"
               >
                 Login
               </Link>
               <Link
                 to="/register"
-                className="text-sm font-medium bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+                className="text-sm font-medium bg-white text-[#009de0] hover:bg-white/90 px-4 py-2 rounded-lg transition-colors"
               >
                 Register
               </Link>
@@ -72,7 +72,7 @@ export default function Navbar() {
         </div>
 
         <button
-          className="md:hidden p-2 text-gray-600"
+          className="md:hidden p-2 text-white"
           onClick={() => setMenuOpen((o) => !o)}
           aria-label="Toggle menu"
         >
@@ -87,7 +87,7 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white px-4 py-3 flex flex-col gap-3">
+        <div className="md:hidden border-t border-white/20 px-4 py-3 flex flex-col gap-3" style={{ background: 'linear-gradient(90deg, #0084d5 0%, #009de0 100%)' }}>
           {isAuthenticated ? (
             <>
               <NavLink to="/book" className={navLinkClass} onClick={() => setMenuOpen(false)}>
@@ -101,17 +101,17 @@ export default function Navbar() {
               </NavLink>
               <button
                 onClick={() => { setMenuOpen(false); handleLogout() }}
-                className="text-left text-sm font-medium text-red-600"
+                className="text-left text-sm font-medium text-white/80 hover:text-white"
               >
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="text-sm font-medium text-gray-600" onClick={() => setMenuOpen(false)}>
+              <Link to="/login" className="text-sm font-medium text-white/80 hover:text-white" onClick={() => setMenuOpen(false)}>
                 Login
               </Link>
-              <Link to="/register" className="text-sm font-medium text-purple-600" onClick={() => setMenuOpen(false)}>
+              <Link to="/register" className="text-sm font-medium text-white" onClick={() => setMenuOpen(false)}>
                 Register
               </Link>
             </>

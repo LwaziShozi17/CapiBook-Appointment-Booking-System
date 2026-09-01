@@ -5,30 +5,30 @@ export default function HomePage() {
   const { isAuthenticated } = useAuth()
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <section className="bg-white py-20 px-6 text-center border-b border-gray-100">
+    <div className="min-h-screen bg-[#f5f5f5]">
+      <section className="bg-white py-20 px-6 text-center border-b border-[#e1e1e1]">
         <div className="max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-purple-50 text-purple-700 text-sm font-medium px-3 py-1 rounded-full mb-6">
-            <span className="w-2 h-2 bg-purple-500 rounded-full" />
+          <div className="inline-flex items-center gap-2 bg-[#f2fafd] text-[#009de0] text-sm font-medium px-3 py-1 rounded-full mb-6">
+            <span className="w-2 h-2 bg-[#009de0] rounded-full" />
             Skip the queue — book online
           </div>
-          <h1 className="text-5xl font-bold text-gray-900 mb-5 leading-tight">
+          <h1 className="text-5xl font-semibold text-[#383634] mb-5 leading-tight">
             Book Your Capitec<br />Appointment Online
           </h1>
-          <p className="text-lg text-gray-500 mb-8 max-w-xl mx-auto">
+          <p className="text-lg text-[#7c7c7c] mb-8 max-w-xl mx-auto">
             Choose your service, pick a branch near you, and select a time that works for you.
             No waiting in line.
           </p>
           <Link
             to={isAuthenticated ? '/book' : '/login'}
-            className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors text-base"
+            className="inline-block bg-[#009de0] hover:bg-[#0084d5] text-white font-semibold px-8 py-3 rounded-xl transition-colors text-base"
           >
             Book an Appointment
           </Link>
           {!isAuthenticated && (
-            <p className="mt-4 text-sm text-gray-400">
+            <p className="mt-4 text-sm text-[#abb3b7]">
               New here?{' '}
-              <Link to="/register" className="text-purple-600 hover:underline font-medium">
+              <Link to="/register" className="text-[#009de0] hover:underline font-medium">
                 Create a free account
               </Link>
             </p>
@@ -38,7 +38,7 @@ export default function HomePage() {
 
       <section className="py-16 px-6">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-semibold text-gray-900 text-center mb-10">
+          <h2 className="text-2xl font-semibold text-[#383634] text-center mb-10">
             How it works
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -77,13 +77,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-12 px-6 bg-purple-600 text-white text-center">
+      <section className="py-12 px-6 text-white text-center" style={{ background: 'linear-gradient(90deg, #0084d5 0%, #009de0 100%)' }}>
         <div className="max-w-xl mx-auto">
           <h2 className="text-2xl font-semibold mb-3">Ready to get started?</h2>
-          <p className="text-purple-100 mb-6">Create your account in seconds and book your first appointment today.</p>
+          <p className="text-white/80 mb-6">Create your account in seconds and book your first appointment today.</p>
           <Link
             to={isAuthenticated ? '/book' : '/register'}
-            className="inline-block bg-white text-purple-700 font-semibold px-8 py-3 rounded-xl hover:bg-purple-50 transition-colors"
+            className="inline-block bg-white text-[#009de0] font-semibold px-8 py-3 rounded-xl hover:bg-white/90 transition-colors"
           >
             {isAuthenticated ? 'Book Now' : 'Get Started'}
           </Link>
@@ -105,15 +105,15 @@ function FeatureCard({
   icon: React.ReactNode
 }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm text-left">
+    <div className="bg-white border border-[#e1e1e1] rounded-xl p-6 shadow-sm text-left">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+        <div className="w-10 h-10 bg-[#f2fafd] text-[#009de0] rounded-xl flex items-center justify-center flex-shrink-0">
           {icon}
         </div>
-        <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Step {step}</span>
+        <span className="text-xs font-semibold text-[#009de0] uppercase tracking-wide">Step {step}</span>
       </div>
-      <h3 className="text-base font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
+      <h3 className="text-base font-semibold text-[#383634] mb-2">{title}</h3>
+      <p className="text-sm text-[#7c7c7c] leading-relaxed">{description}</p>
     </div>
   )
 }

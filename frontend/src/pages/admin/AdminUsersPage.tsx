@@ -65,34 +65,34 @@ export default function AdminUsersPage() {
 
   const roleBadge = (role: string) => {
     const styles: Record<string, string> = {
-      CUSTOMER: 'bg-gray-100 text-gray-600',
-      BRANCH_ADMIN: 'bg-blue-100 text-blue-700',
-      SYSTEM_ADMIN: 'bg-purple-100 text-purple-700',
+      CUSTOMER: 'bg-[#efefef] text-[#7c7c7c]',
+      BRANCH_ADMIN: 'bg-[#f2fafd] text-[#009de0]',
+      SYSTEM_ADMIN: 'bg-[#edf8fd] text-[#00486d]',
     }
-    return styles[role] ?? 'bg-gray-100 text-gray-600'
+    return styles[role] ?? 'bg-[#efefef] text-[#7c7c7c]'
   }
 
   return (
     <div className="px-8 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-          <p className="text-sm text-gray-500 mt-0.5">All registered accounts</p>
+          <h1 className="text-2xl font-bold text-[#383634]">Users</h1>
+          <p className="text-sm text-[#7c7c7c] mt-0.5">All registered accounts</p>
         </div>
         <button
           onClick={() => setShowCreateForm((v) => !v)}
-          className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          className="bg-[#009de0] hover:bg-[#0084d5] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           {showCreateForm ? 'Cancel' : 'Add Branch Admin'}
         </button>
       </div>
 
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-      {successMsg && <p className="text-green-600 text-sm mb-4">{successMsg}</p>}
+      {error && <p className="text-[#a5132a] text-sm mb-4">{error}</p>}
+      {successMsg && <p className="text-[#68a200] text-sm mb-4">{successMsg}</p>}
 
       {showCreateForm && (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">Create Branch Admin</h2>
+        <div className="bg-white border border-[#e1e1e1] rounded-xl p-6 mb-6">
+          <h2 className="text-sm font-semibold text-[#383634] mb-4">Create Branch Admin</h2>
           <div className="grid grid-cols-2 gap-4">
             {[
               { key: 'email', label: 'Email', type: 'email' },
@@ -102,21 +102,21 @@ export default function AdminUsersPage() {
               { key: 'password', label: 'Password', type: 'password' },
             ].map(({ key, label, type = 'text' }) => (
               <div key={key}>
-                <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
+                <label className="block text-xs font-medium text-[#7c7c7c] mb-1">{label}</label>
                 <input
                   type={type}
                   value={(form as unknown as Record<string, string>)[key] ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full border border-[#e1e1e1] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#009de0]"
                 />
               </div>
             ))}
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Branch</label>
+              <label className="block text-xs font-medium text-[#7c7c7c] mb-1">Branch</label>
               <select
                 value={form.branchId}
                 onChange={(e) => setForm((f) => ({ ...f, branchId: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full border border-[#e1e1e1] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#009de0]"
               >
                 <option value="">Select branch…</option>
                 {branches.map((b) => (
@@ -128,23 +128,23 @@ export default function AdminUsersPage() {
           <button
             onClick={handleCreate}
             disabled={creating || !form.email || !form.branchId || !form.password}
-            className="mt-4 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-5 py-2 rounded-lg disabled:opacity-50"
+            className="mt-4 bg-[#009de0] hover:bg-[#0084d5] text-white text-sm font-medium px-5 py-2 rounded-lg disabled:opacity-50"
           >
             {creating ? 'Creating…' : 'Create Branch Admin'}
           </button>
         </div>
       )}
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+      <div className="bg-white border border-[#e1e1e1] rounded-xl overflow-hidden">
         {loading ? (
           <div className="flex justify-center py-16">
-            <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-[#009de0] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-xs text-gray-500">
+                <tr className="border-b border-[#e1e1e1] text-xs text-[#7c7c7c]">
                   <th className="text-left px-5 py-3 font-medium">Name</th>
                   <th className="text-left px-4 py-3 font-medium">Email</th>
                   <th className="text-left px-4 py-3 font-medium">Role</th>
@@ -155,29 +155,29 @@ export default function AdminUsersPage() {
               </thead>
               <tbody>
                 {(page?.content ?? []).map((u) => (
-                  <tr key={u.id} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="px-5 py-3 font-medium text-gray-800">
+                  <tr key={u.id} className="border-b border-[#e1e1e1] hover:bg-[#f8f8f9]">
+                    <td className="px-5 py-3 font-medium text-[#383634]">
                       {u.firstName} {u.lastName}
                     </td>
-                    <td className="px-4 py-3 text-gray-500">{u.email}</td>
+                    <td className="px-4 py-3 text-[#7c7c7c]">{u.email}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${roleBadge(u.role)}`}>
                         {u.role.replace('_', ' ')}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${u.active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${u.active ? 'bg-[#f0f7e6] text-[#68a200]' : 'bg-[#efefef] text-[#7c7c7c]'}`}>
                         {u.active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">
+                    <td className="px-4 py-3 text-[#abb3b7] text-xs">
                       {new Date(u.createdAt).toLocaleDateString('en-ZA')}
                     </td>
                     <td className="px-4 py-3 text-right">
                       {u.active && u.role !== 'SYSTEM_ADMIN' && (
                         <button
                           onClick={() => handleDeactivate(u.id)}
-                          className="text-xs text-red-500 hover:text-red-700 font-medium"
+                          className="text-xs text-[#a5132a] hover:text-red-700 font-medium"
                         >
                           Deactivate
                         </button>
@@ -196,17 +196,17 @@ export default function AdminUsersPage() {
           <button
             disabled={currentPage === 0}
             onClick={() => setCurrentPage((p) => p - 1)}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+            className="px-4 py-2 text-sm border border-[#e1e1e1] rounded-lg disabled:opacity-40 hover:bg-[#f8f8f9]"
           >
             Previous
           </button>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-[#7c7c7c]">
             Page {currentPage + 1} of {page.totalPages}
           </span>
           <button
             disabled={currentPage >= page.totalPages - 1}
             onClick={() => setCurrentPage((p) => p + 1)}
-            className="px-4 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-50"
+            className="px-4 py-2 text-sm border border-[#e1e1e1] rounded-lg disabled:opacity-40 hover:bg-[#f8f8f9]"
           >
             Next
           </button>

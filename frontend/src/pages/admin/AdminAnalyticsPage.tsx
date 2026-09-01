@@ -73,35 +73,35 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="px-8 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Analytics</h1>
-      <p className="text-sm text-gray-500 mb-6">Appointment statistics and branch performance</p>
+      <h1 className="text-2xl font-bold text-[#383634] mb-1">Analytics</h1>
+      <p className="text-sm text-[#7c7c7c] mb-6">Appointment statistics and branch performance</p>
 
-      <div className="flex items-end gap-4 mb-8 bg-white border border-gray-200 rounded-xl p-4">
+      <div className="flex items-end gap-4 mb-8 bg-white border border-[#e1e1e1] rounded-xl p-4">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">From</label>
+          <label className="block text-xs font-medium text-[#7c7c7c] mb-1">From</label>
           <input
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="border border-[#e1e1e1] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#009de0]"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">To</label>
+          <label className="block text-xs font-medium text-[#7c7c7c] mb-1">To</label>
           <input
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="border border-[#e1e1e1] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#009de0]"
           />
         </div>
         {branches && branches.length > 0 && (
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Branch (utilisation)</label>
+            <label className="block text-xs font-medium text-[#7c7c7c] mb-1">Branch (utilisation)</label>
             <select
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="border border-[#e1e1e1] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#009de0]"
             >
               {branches.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
@@ -112,22 +112,22 @@ export default function AdminAnalyticsPage() {
         <button
           onClick={loadData}
           disabled={loading}
-          className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-50"
+          className="bg-[#009de0] hover:bg-[#0084d5] text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors disabled:opacity-50"
         >
           {loading ? 'Loading…' : 'Load Data'}
         </button>
       </div>
 
-      {error && <p className="text-red-600 text-sm mb-6">{error}</p>}
+      {error && <p className="text-[#a5132a] text-sm mb-6">{error}</p>}
 
       {summary && (
         <>
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">Appointment Summary</h2>
+          <h2 className="text-sm font-semibold text-[#383634] mb-3">Appointment Summary</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {statCards.map((s) => (
-              <div key={s.label} className="bg-white border border-gray-200 rounded-xl p-4">
-                <p className="text-xs text-gray-500 mb-1">{s.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+              <div key={s.label} className="bg-white border border-[#e1e1e1] rounded-xl p-4">
+                <p className="text-xs text-[#7c7c7c] mb-1">{s.label}</p>
+                <p className="text-2xl font-bold text-[#383634]">{s.value}</p>
               </div>
             ))}
           </div>
@@ -136,27 +136,27 @@ export default function AdminAnalyticsPage() {
 
       {utilisation && (
         <>
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">Branch Utilisation — {utilisation.branchName}</h2>
-          <div className="bg-white border border-gray-200 rounded-xl p-5 mb-8">
+          <h2 className="text-sm font-semibold text-[#383634] mb-3">Branch Utilisation — {utilisation.branchName}</h2>
+          <div className="bg-white border border-[#e1e1e1] rounded-xl p-5 mb-8">
             <div className="flex items-center gap-8">
               <div>
-                <p className="text-xs text-gray-500 mb-1">Total Slots</p>
-                <p className="text-2xl font-bold text-gray-900">{utilisation.totalSlots}</p>
+                <p className="text-xs text-[#7c7c7c] mb-1">Total Slots</p>
+                <p className="text-2xl font-bold text-[#383634]">{utilisation.totalSlots}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 mb-1">Booked Slots</p>
-                <p className="text-2xl font-bold text-blue-600">{utilisation.bookedSlots}</p>
+                <p className="text-xs text-[#7c7c7c] mb-1">Booked Slots</p>
+                <p className="text-2xl font-bold text-[#009de0]">{utilisation.bookedSlots}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 mb-1">Utilisation Rate</p>
-                <p className="text-2xl font-bold text-purple-600">
+                <p className="text-xs text-[#7c7c7c] mb-1">Utilisation Rate</p>
+                <p className="text-2xl font-bold text-[#00486d]">
                   {(utilisation.utilisation * 100).toFixed(1)}%
                 </p>
               </div>
             </div>
-            <div className="mt-4 bg-gray-100 rounded-full h-3 overflow-hidden">
+            <div className="mt-4 bg-[#efefef] rounded-full h-3 overflow-hidden">
               <div
-                className="bg-purple-600 h-3 rounded-full transition-all"
+                className="bg-[#009de0] h-3 rounded-full transition-all"
                 style={{ width: `${Math.min(utilisation.utilisation * 100, 100)}%` }}
               />
             </div>
@@ -166,11 +166,11 @@ export default function AdminAnalyticsPage() {
 
       {popularity.length > 0 && (
         <>
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">Service Popularity</h2>
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <h2 className="text-sm font-semibold text-[#383634] mb-3">Service Popularity</h2>
+          <div className="bg-white border border-[#e1e1e1] rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-xs text-gray-500">
+                <tr className="border-b border-[#e1e1e1] text-xs text-[#7c7c7c]">
                   <th className="text-left px-5 py-3 font-medium">Rank</th>
                   <th className="text-left px-4 py-3 font-medium">Service</th>
                   <th className="text-left px-4 py-3 font-medium">Total Bookings</th>
@@ -178,10 +178,10 @@ export default function AdminAnalyticsPage() {
               </thead>
               <tbody>
                 {popularity.map((s, i) => (
-                  <tr key={s.serviceId} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="px-5 py-3 text-gray-400 font-medium">#{i + 1}</td>
-                    <td className="px-4 py-3 font-medium text-gray-800">{s.serviceName}</td>
-                    <td className="px-4 py-3 text-gray-700">{s.totalBookings}</td>
+                  <tr key={s.serviceId} className="border-b border-[#e1e1e1] hover:bg-[#f8f8f9]">
+                    <td className="px-5 py-3 text-[#abb3b7] font-medium">#{i + 1}</td>
+                    <td className="px-4 py-3 font-medium text-[#383634]">{s.serviceName}</td>
+                    <td className="px-4 py-3 text-[#383634]">{s.totalBookings}</td>
                   </tr>
                 ))}
               </tbody>
@@ -191,7 +191,7 @@ export default function AdminAnalyticsPage() {
       )}
 
       {!summary && !loading && (
-        <div className="text-center py-16 text-gray-400 text-sm">
+        <div className="text-center py-16 text-[#abb3b7] text-sm">
           Select a date range and click "Load Data" to view analytics.
         </div>
       )}

@@ -108,16 +108,16 @@ export default function BookPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-10">
+    <div className="min-h-screen bg-[#f5f5f5] px-4 py-10">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Book an Appointment</h1>
-        <p className="text-sm text-gray-500 mb-6">Complete each step to confirm your booking</p>
+        <h1 className="text-2xl font-bold text-[#383634] mb-1">Book an Appointment</h1>
+        <p className="text-sm text-[#7c7c7c] mb-6">Complete each step to confirm your booking</p>
 
         <StepIndicator current={step} />
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6">
+        <div className="bg-white border border-[#e1e1e1] rounded-2xl shadow-sm p-6 mt-6">
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+            <div className="mb-4 bg-[#fdf2f4] border border-[#fde8eb] text-[#a5132a] text-sm rounded-lg px-4 py-3">
               {error}
             </div>
           )}
@@ -189,10 +189,10 @@ function StepIndicator({ current }: { current: Step }) {
               <div
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold ${
                   done
-                    ? 'bg-purple-600 text-white'
+                    ? 'bg-[#009de0] text-white'
                     : active
-                    ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-600'
-                    : 'bg-gray-100 text-gray-400'
+                    ? 'bg-[#f2fafd] text-[#009de0] ring-2 ring-[#009de0]'
+                    : 'bg-[#efefef] text-[#abb3b7]'
                 }`}
               >
                 {done ? (
@@ -203,12 +203,12 @@ function StepIndicator({ current }: { current: Step }) {
                   num
                 )}
               </div>
-              <span className={`text-xs hidden sm:block ${active ? 'text-purple-700 font-medium' : 'text-gray-400'}`}>
+              <span className={`text-xs hidden sm:block ${active ? 'text-[#009de0] font-medium' : 'text-[#abb3b7]'}`}>
                 {label}
               </span>
             </div>
             {i < STEP_LABELS.length - 1 && (
-              <div className={`flex-1 h-0.5 mx-1 ${done ? 'bg-purple-600' : 'bg-gray-200'}`} />
+              <div className={`flex-1 h-0.5 mx-1 ${done ? 'bg-[#009de0]' : 'bg-[#e1e1e1]'}`} />
             )}
           </div>
         )
@@ -230,7 +230,7 @@ function Step1({
 }) {
   return (
     <div>
-      <h2 className="text-base font-semibold text-gray-900 mb-4">Choose a Service</h2>
+      <h2 className="text-base font-semibold text-[#383634] mb-4">Choose a Service</h2>
       {loading ? (
         <LoadingSpinner />
       ) : (
@@ -241,15 +241,15 @@ function Step1({
               onClick={() => onSelect(s)}
               className={`text-left p-4 rounded-xl border-2 transition-all ${
                 selected?.id === s.id
-                  ? 'border-purple-600 bg-purple-50'
-                  : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
+                  ? 'border-[#009de0] bg-[#f2fafd]'
+                  : 'border-[#e1e1e1] hover:border-[#009de0]/50 hover:bg-[#f8f8f9]'
               }`}
             >
-              <p className="font-medium text-gray-900 text-sm">{s.name}</p>
+              <p className="font-medium text-[#383634] text-sm">{s.name}</p>
               {s.description && (
-                <p className="text-xs text-gray-500 mt-1 line-clamp-2">{s.description}</p>
+                <p className="text-xs text-[#7c7c7c] mt-1 line-clamp-2">{s.description}</p>
               )}
-              <p className="text-xs text-purple-600 font-medium mt-2">{s.durationMinutes} min</p>
+              <p className="text-xs text-[#009de0] font-medium mt-2">{s.durationMinutes} min</p>
             </button>
           ))}
         </div>
@@ -273,7 +273,7 @@ function Step2({
 }) {
   return (
     <div>
-      <h2 className="text-base font-semibold text-gray-900 mb-4">Choose a Branch</h2>
+      <h2 className="text-base font-semibold text-[#383634] mb-4">Choose a Branch</h2>
       {loading ? (
         <LoadingSpinner />
       ) : (
@@ -284,13 +284,13 @@ function Step2({
               onClick={() => onSelect(b)}
               className={`text-left p-4 rounded-xl border-2 transition-all ${
                 selected?.id === b.id
-                  ? 'border-purple-600 bg-purple-50'
-                  : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
+                  ? 'border-[#009de0] bg-[#f2fafd]'
+                  : 'border-[#e1e1e1] hover:border-[#009de0]/50 hover:bg-[#f8f8f9]'
               }`}
             >
-              <p className="font-medium text-gray-900 text-sm">{b.name}</p>
-              <p className="text-xs text-gray-500 mt-1">{b.address}</p>
-              <p className="text-xs text-gray-400">{b.city}, {b.province}</p>
+              <p className="font-medium text-[#383634] text-sm">{b.name}</p>
+              <p className="text-xs text-[#7c7c7c] mt-1">{b.address}</p>
+              <p className="text-xs text-[#abb3b7]">{b.city}, {b.province}</p>
             </button>
           ))}
         </div>
@@ -315,20 +315,20 @@ function Step3({
 }) {
   return (
     <div>
-      <h2 className="text-base font-semibold text-gray-900 mb-4">Choose a Date</h2>
+      <h2 className="text-base font-semibold text-[#383634] mb-4">Choose a Date</h2>
       <input
         type="date"
         min={minDate}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
+        className="w-full border border-[#e1e1e1] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#009de0] mb-4"
       />
       <div className="flex gap-3">
         <BackButton onClick={onBack} />
         <button
           onClick={onNext}
           disabled={!value}
-          className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
+          className="flex-1 bg-[#009de0] hover:bg-[#0084d5] disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
         >
           View Available Slots
         </button>
@@ -360,11 +360,11 @@ function Step4({
 
   return (
     <div>
-      <h2 className="text-base font-semibold text-gray-900 mb-4">Choose a Time Slot</h2>
+      <h2 className="text-base font-semibold text-[#383634] mb-4">Choose a Time Slot</h2>
       {loading ? (
         <LoadingSpinner />
       ) : slots.length === 0 ? (
-        <p className="text-sm text-gray-500">No slots available for this date. Please choose another date.</p>
+        <p className="text-sm text-[#7c7c7c]">No slots available for this date. Please choose another date.</p>
       ) : (
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-4">
           {slots.map((slot, i) => {
@@ -377,12 +377,12 @@ function Step4({
                 onClick={() => isAvailable && onSelect(slot)}
                 className={`py-2 px-1 rounded-lg text-xs font-medium border-2 transition-all ${
                   isSelected
-                    ? 'border-purple-600 bg-purple-600 text-white'
+                    ? 'border-[#009de0] bg-[#009de0] text-white'
                     : isAvailable
                     ? 'border-green-400 bg-green-50 text-green-800 hover:bg-green-100'
                     : slot.status === 'BOOKED'
                     ? 'border-red-200 bg-red-50 text-red-400 cursor-not-allowed'
-                    : 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed'
+                    : 'border-[#e1e1e1] bg-[#f5f5f5] text-[#abb3b7] cursor-not-allowed'
                 }`}
               >
                 {fmt(slot.startTime)}
@@ -394,7 +394,7 @@ function Step4({
           })}
         </div>
       )}
-      <div className="flex gap-4 text-xs text-gray-500 mb-4">
+      <div className="flex gap-4 text-xs text-[#7c7c7c] mb-4">
         <span className="flex items-center gap-1">
           <span className="w-3 h-3 rounded bg-green-400" /> Available
         </span>
@@ -402,7 +402,7 @@ function Step4({
           <span className="w-3 h-3 rounded bg-red-300" /> Taken
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded bg-gray-200" /> Unavailable
+          <span className="w-3 h-3 rounded bg-[#e1e1e1]" /> Unavailable
         </span>
       </div>
       <BackButton onClick={onBack} />
@@ -449,8 +449,8 @@ function Step5({
 
   return (
     <div>
-      <h2 className="text-base font-semibold text-gray-900 mb-4">Confirm Your Booking</h2>
-      <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 mb-5 space-y-3">
+      <h2 className="text-base font-semibold text-[#383634] mb-4">Confirm Your Booking</h2>
+      <div className="bg-[#f5f5f5] rounded-xl border border-[#e1e1e1] p-5 mb-5 space-y-3">
         <SummaryRow label="Service" value={service.name} />
         <SummaryRow label="Duration" value={`${service.durationMinutes} minutes`} />
         <SummaryRow label="Branch" value={`${branch.name}, ${branch.city}`} />
@@ -459,15 +459,15 @@ function Step5({
       </div>
 
       <div className="mb-5">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Notes <span className="text-gray-400 font-normal">(optional)</span>
+        <label className="block text-sm font-medium text-[#383634] mb-1">
+          Notes <span className="text-[#abb3b7] font-normal">(optional)</span>
         </label>
         <textarea
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
           rows={3}
           placeholder="Any additional information for the branch…"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+          className="w-full border border-[#e1e1e1] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#009de0] resize-none"
         />
       </div>
 
@@ -476,7 +476,7 @@ function Step5({
         <button
           onClick={onBook}
           disabled={submitting}
-          className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm"
+          className="flex-1 bg-[#009de0] hover:bg-[#0084d5] disabled:opacity-60 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm"
         >
           {submitting ? 'Booking…' : 'Confirm Booking'}
         </button>
@@ -488,8 +488,8 @@ function Step5({
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between items-start gap-4 text-sm">
-      <span className="text-gray-500 flex-shrink-0">{label}</span>
-      <span className="text-gray-900 font-medium text-right">{value}</span>
+      <span className="text-[#7c7c7c] flex-shrink-0">{label}</span>
+      <span className="text-[#383634] font-medium text-right">{value}</span>
     </div>
   )
 }
@@ -498,7 +498,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+      className="px-4 py-2.5 border border-[#e1e1e1] rounded-lg text-sm font-medium text-[#7c7c7c] hover:bg-[#f8f8f9] transition-colors"
     >
       Back
     </button>
@@ -508,7 +508,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center py-12">
-      <div className="w-6 h-6 border-3 border-purple-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-6 h-6 border-3 border-[#009de0] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 }
