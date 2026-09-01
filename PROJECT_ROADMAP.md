@@ -16,7 +16,7 @@
 |-------|---------------------------------------|-------------|
 | 0     | Project Foundation                    | COMPLETE    |
 | 1     | Authentication & User Management      | COMPLETE    |
-| 2     | Branch & Banking Service Management   | NOT STARTED |
+| 2     | Branch & Banking Service Management   | COMPLETE    |
 | 3     | Availability & Time Slot Management   | NOT STARTED |
 | 4     | Core Appointment Booking              | NOT STARTED |
 | 5     | Appointment Lifecycle Management      | NOT STARTED |
@@ -1876,4 +1876,4 @@ When commits are created, they must use the developer's existing Git identity.
 
 ---
 
-*Last updated: Phase 0 — COMPLETE (2026-09-01)*
+*Last updated: Phase 2 — COMPLETE (2026-09-01)*
