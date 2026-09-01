@@ -44,3 +44,30 @@ export async function rescheduleAppointment(
   const { data } = await apiClient.patch<AppointmentResponse>(`/appointments/${id}/reschedule`, req)
   return data
 }
+
+export async function confirmAppointment(id: string): Promise<AppointmentResponse> {
+  const { data } = await apiClient.patch<AppointmentResponse>(`/appointments/${id}/confirm`, {})
+  return data
+}
+
+export async function completeAppointment(id: string): Promise<AppointmentResponse> {
+  const { data } = await apiClient.patch<AppointmentResponse>(`/appointments/${id}/complete`, {})
+  return data
+}
+
+export async function markNoShow(id: string): Promise<AppointmentResponse> {
+  const { data } = await apiClient.patch<AppointmentResponse>(`/appointments/${id}/no-show`, {})
+  return data
+}
+
+export async function listAdminAppointments(
+  page = 0,
+  size = 20,
+  branchId?: string
+): Promise<import('../types').PageResponse<AppointmentResponse>> {
+  const { data } = await apiClient.get<import('../types').PageResponse<AppointmentResponse>>(
+    '/admin/appointments',
+    { params: { page, size, ...(branchId ? { branchId } : {}) } }
+  )
+  return data
+}

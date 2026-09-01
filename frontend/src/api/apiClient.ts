@@ -24,7 +24,13 @@ function processQueue(token: string) {
 }
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const body = response.data
+    if (body && typeof body === 'object' && 'success' in body && 'data' in body) {
+      response.data = body.data
+    }
+    return response
+  },
   async (error) => {
     const original = error.config
     if (error.response?.status !== 401 || original._retry) {
@@ -51,7 +57,8 @@ apiClient.interceptors.response.use(
     isRefreshing = true
     try {
       const { data } = await axios.post(`${BASE_URL}/auth/refresh`, { refreshToken })
-      const newToken: string = data.accessToken
+      const authData = data?.data ?? data
+      const newToken: string = authData.accessToken
       localStorage.setItem('accessToken', newToken)
       processQueue(newToken)
       original.headers.Authorization = `Bearer ${newToken}`

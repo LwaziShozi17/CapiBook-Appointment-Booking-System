@@ -151,3 +151,120 @@ export interface AppointmentHistoryResponse {
   changeReason: string | null
   changedAt: string
 }
+
+// ── Admin types ────────────────────────────────────────────────────────────
+
+export interface AdminUserResponse {
+  id: string
+  email: string
+  firstName: string
+  lastName: string
+  phoneNumber: string | null
+  role: 'CUSTOMER' | 'BRANCH_ADMIN' | 'SYSTEM_ADMIN'
+  branchId: string | null
+  active: boolean
+  createdAt: string
+}
+
+export interface CreateBranchAdminRequest {
+  email: string
+  firstName: string
+  lastName: string
+  phoneNumber?: string
+  branchId: string
+  password: string
+}
+
+export interface AppointmentSummaryResponse {
+  totalBooked: number
+  totalPending: number
+  totalConfirmed: number
+  totalCancelled: number
+  totalCompleted: number
+  totalNoShow: number
+  totalRescheduled: number
+  periodStart: string
+  periodEnd: string
+}
+
+export interface AuditLogResponse {
+  id: string
+  actorId: string | null
+  action: string
+  entityType: string | null
+  entityId: string | null
+  details: string | null
+  createdAt: string
+}
+
+export type ExceptionType = 'CLOSED' | 'MAINTENANCE'
+
+export interface AvailabilityExceptionResponse {
+  id: string
+  branchId: string
+  exceptionDate: string
+  type: ExceptionType
+  reason: string | null
+  createdAt: string
+}
+
+export interface CreateAvailabilityExceptionRequest {
+  exceptionDate: string
+  type: ExceptionType
+  reason?: string
+}
+
+export interface BranchUtilisationResponse {
+  branchId: string
+  branchName: string
+  periodStart: string
+  periodEnd: string
+  totalSlots: number
+  bookedSlots: number
+  utilisation: number
+}
+
+export interface ServicePopularityResponse {
+  serviceId: string
+  serviceName: string
+  totalBookings: number
+}
+
+export interface CreateBranchRequest {
+  branchCode: string
+  name: string
+  address: string
+  city: string
+  province: string
+  postalCode: string
+  latitude?: number | null
+  longitude?: number | null
+  phoneNumber?: string
+  email?: string
+  maxConcurrentAppointments?: number
+}
+
+export interface UpdateBranchRequest {
+  name: string
+  address: string
+  city: string
+  province: string
+  postalCode: string
+  latitude?: number | null
+  longitude?: number | null
+  phoneNumber?: string
+  email?: string
+  maxConcurrentAppointments?: number
+}
+
+export interface CreateServiceRequest {
+  name: string
+  description?: string
+  durationMinutes: number
+}
+
+export interface UpdateServiceRequest {
+  name: string
+  description?: string
+  durationMinutes: number
+}
