@@ -21,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -40,11 +41,13 @@ import static org.mockito.Mockito.*;
 class AppointmentServiceTest {
 
     @Mock private AppointmentRepository appointmentRepository;
+    @Mock private AppointmentHistoryRepository appointmentHistoryRepository;
     @Mock private BranchRepository branchRepository;
     @Mock private BankingServiceRepository bankingServiceRepository;
     @Mock private BranchOperatingHoursRepository operatingHoursRepository;
     @Mock private PublicHolidayRepository publicHolidayRepository;
     @Mock private UserRepository userRepository;
+    @Mock private ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     private AppointmentService appointmentService;

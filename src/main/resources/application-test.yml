@@ -16,7 +16,16 @@ spring:
     locations: classpath:db/migration
   kafka:
     bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        max.block.ms: 200
     consumer:
+      group-id: capibook-default
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
       auto-startup: false
 
 management:
@@ -26,6 +35,14 @@ management:
         include: health
 
 app:
+  kafka:
+    topics:
+      appointment-created: appointment.created
+      appointment-cancelled: appointment.cancelled
+      appointment-confirmed: appointment.confirmed
+      appointment-completed: appointment.completed
+      appointment-no-show: appointment.no_show
+      appointment-rescheduled: appointment.rescheduled
   jwt:
     secret: test-secret-key-that-is-at-least-32-characters-long-for-HS256
     access-token-expiration-ms: 900000

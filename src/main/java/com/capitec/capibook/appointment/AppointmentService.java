@@ -13,21 +13,27 @@ import com.capitec.capibook.common.PageResponse;
 import com.capitec.capibook.exception.AppointmentConflictException;
 import com.capitec.capibook.exception.InvalidStatusTransitionException;
 import com.capitec.capibook.exception.ResourceNotFoundException;
+import com.capitec.capibook.kafka.AppointmentDomainEvent;
+import com.capitec.capibook.kafka.events.AppointmentEventMessage;
+import com.capitec.capibook.kafka.events.AppointmentEventType;
 import com.capitec.capibook.servicecatalog.BankingService;
 import com.capitec.capibook.servicecatalog.BankingServiceRepository;
 import com.capitec.capibook.user.Role;
 import com.capitec.capibook.user.User;
 import com.capitec.capibook.user.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -40,6 +46,13 @@ public class AppointmentService {
             List.of(AppointmentStatus.CANCELLED, AppointmentStatus.COMPLETED,
                     AppointmentStatus.NO_SHOW, AppointmentStatus.RESCHEDULED);
 
+    private static final Map<AppointmentStatus, AppointmentEventType> STATUS_TO_EVENT = Map.of(
+            AppointmentStatus.CANCELLED,    AppointmentEventType.APPOINTMENT_CANCELLED,
+            AppointmentStatus.CONFIRMED,    AppointmentEventType.APPOINTMENT_CONFIRMED,
+            AppointmentStatus.COMPLETED,    AppointmentEventType.APPOINTMENT_COMPLETED,
+            AppointmentStatus.NO_SHOW,      AppointmentEventType.APPOINTMENT_NO_SHOW
+    );
+
     private final AppointmentRepository appointmentRepository;
     private final AppointmentHistoryRepository appointmentHistoryRepository;
     private final BranchRepository branchRepository;
@@ -47,6 +60,7 @@ public class AppointmentService {
     private final BranchOperatingHoursRepository operatingHoursRepository;
     private final PublicHolidayRepository publicHolidayRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AppointmentService(AppointmentRepository appointmentRepository,
                               AppointmentHistoryRepository appointmentHistoryRepository,
@@ -54,7 +68,8 @@ public class AppointmentService {
                               BankingServiceRepository bankingServiceRepository,
                               BranchOperatingHoursRepository operatingHoursRepository,
                               PublicHolidayRepository publicHolidayRepository,
-                              UserRepository userRepository) {
+                              UserRepository userRepository,
+                              ApplicationEventPublisher eventPublisher) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentHistoryRepository = appointmentHistoryRepository;
         this.branchRepository = branchRepository;
@@ -62,6 +77,7 @@ public class AppointmentService {
         this.operatingHoursRepository = operatingHoursRepository;
         this.publicHolidayRepository = publicHolidayRepository;
         this.userRepository = userRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     /**
@@ -129,7 +145,9 @@ public class AppointmentService {
         appointment.setReferenceNumber(generateReferenceNumber(date.getYear()));
         appointment.setNotes(request.notes());
 
-        return toResponse(appointmentRepository.save(appointment), customer, branch, service);
+        Appointment saved = appointmentRepository.save(appointment);
+        publishEvent(saved, AppointmentEventType.APPOINTMENT_CREATED);
+        return toResponse(saved, customer, branch, service);
     }
 
     @Transactional(readOnly = true)
@@ -285,7 +303,9 @@ public class AppointmentService {
         rescheduled.setReferenceNumber(generateReferenceNumber(date.getYear()));
         rescheduled.setNotes(request.notes());
 
-        return toResponse(appointmentRepository.save(rescheduled));
+        Appointment savedRescheduled = appointmentRepository.save(rescheduled);
+        publishEvent(savedRescheduled, AppointmentEventType.APPOINTMENT_RESCHEDULED);
+        return toResponse(savedRescheduled);
     }
 
     @Transactional(readOnly = true)
@@ -307,7 +327,12 @@ public class AppointmentService {
                                                   AppointmentStatus newStatus, String reason) {
         recordHistory(appointment, changedBy, newStatus, reason);
         appointment.setStatus(newStatus);
-        return toResponse(appointmentRepository.save(appointment));
+        Appointment saved = appointmentRepository.save(appointment);
+        AppointmentEventType eventType = STATUS_TO_EVENT.get(newStatus);
+        if (eventType != null) {
+            publishEvent(saved, eventType);
+        }
+        return toResponse(saved);
     }
 
     private void recordHistory(Appointment appointment, User changedBy,
@@ -404,5 +429,21 @@ public class AppointmentService {
         return String.format("CAP-%d-%s",
                 year,
                 UUID.randomUUID().toString().replace("-", "").substring(0, 5).toUpperCase());
+    }
+
+    private void publishEvent(Appointment appointment, AppointmentEventType eventType) {
+        AppointmentEventMessage message = new AppointmentEventMessage(
+                UUID.randomUUID(),
+                eventType,
+                Instant.now(),
+                appointment.getId(),
+                appointment.getCustomer().getId(),
+                appointment.getBranch().getId(),
+                appointment.getService().getId(),
+                appointment.getAppointmentDate(),
+                appointment.getStartTime(),
+                appointment.getReferenceNumber()
+        );
+        eventPublisher.publishEvent(new AppointmentDomainEvent(this, message));
     }
 }

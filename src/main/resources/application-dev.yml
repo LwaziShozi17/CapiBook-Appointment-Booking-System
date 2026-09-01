@@ -18,6 +18,16 @@ spring:
     locations: classpath:db/migration
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+    consumer:
+      group-id: capibook-default
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
 
 management:
   endpoints:
@@ -38,6 +48,14 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  kafka:
+    topics:
+      appointment-created: appointment.created
+      appointment-cancelled: appointment.cancelled
+      appointment-confirmed: appointment.confirmed
+      appointment-completed: appointment.completed
+      appointment-no-show: appointment.no_show
+      appointment-rescheduled: appointment.rescheduled
   jwt:
     secret: ${JWT_SECRET:capibook-dev-secret-key-must-be-at-least-32-characters-for-HS256}
     access-token-expiration-ms: ${JWT_ACCESS_TOKEN_EXPIRATION_MS:900000}
