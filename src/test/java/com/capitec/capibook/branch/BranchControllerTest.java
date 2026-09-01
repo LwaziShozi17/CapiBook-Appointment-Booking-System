@@ -41,6 +41,8 @@ class BranchControllerTest {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .build();
+        jdbcTemplate.execute("UPDATE users SET branch_id = NULL WHERE branch_id IS NOT NULL");
+        jdbcTemplate.execute("DELETE FROM branch_availability_exceptions");
         jdbcTemplate.execute("DELETE FROM branch_operating_hours");
         jdbcTemplate.execute("DELETE FROM branches");
     }

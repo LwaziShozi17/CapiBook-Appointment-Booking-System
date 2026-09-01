@@ -4,6 +4,7 @@ import com.capitec.capibook.appointment.AppointmentRepository;
 import com.capitec.capibook.appointment.AppointmentStatus;
 import com.capitec.capibook.availability.dto.AvailabilityResponse;
 import com.capitec.capibook.branch.Branch;
+import com.capitec.capibook.branch.BranchAvailabilityExceptionRepository;
 import com.capitec.capibook.branch.BranchOperatingHours;
 import com.capitec.capibook.branch.BranchOperatingHoursRepository;
 import com.capitec.capibook.branch.BranchRepository;
@@ -37,6 +38,7 @@ class AvailabilityServiceTest {
     @Mock private BranchOperatingHoursRepository operatingHoursRepository;
     @Mock private PublicHolidayRepository publicHolidayRepository;
     @Mock private AppointmentRepository appointmentRepository;
+    @Mock private BranchAvailabilityExceptionRepository availabilityExceptionRepository;
 
     @InjectMocks
     private AvailabilityService availabilityService;
