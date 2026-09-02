@@ -2,6 +2,7 @@ package com.capitec.capibook.appointment.dto;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,5 +22,6 @@ public record CreateAppointmentRequest(
         @NotNull(message = "Start time is required")
         LocalTime startTime,
 
+        @Size(max = 500, message = "Notes must not exceed 500 characters")
         String notes
 ) {}

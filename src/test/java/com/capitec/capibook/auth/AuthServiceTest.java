@@ -107,6 +107,7 @@ class AuthServiceTest {
     @Test
     void login_withValidCredentials_returnsTokens() {
         when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
         when(jwtService.generateAccessToken(any())).thenReturn("access-token");
         when(jwtService.getAccessTokenExpirationMs()).thenReturn(900_000L);
         when(refreshTokenRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -119,6 +120,8 @@ class AuthServiceTest {
 
     @Test
     void login_withBadCredentials_propagatesException() {
+        when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
         doThrow(new BadCredentialsException("Bad credentials"))
                 .when(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
 

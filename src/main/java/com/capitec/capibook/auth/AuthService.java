@@ -3,6 +3,7 @@ package com.capitec.capibook.auth;
 import com.capitec.capibook.auth.dto.AuthResponse;
 import com.capitec.capibook.auth.dto.LoginRequest;
 import com.capitec.capibook.auth.dto.RegisterRequest;
+import com.capitec.capibook.exception.AccountLockedException;
 import com.capitec.capibook.exception.DuplicateEmailException;
 import com.capitec.capibook.exception.InvalidTokenException;
 import com.capitec.capibook.exception.ResourceNotFoundException;
@@ -11,7 +12,9 @@ import com.capitec.capibook.user.UserRepository;
 import com.capitec.capibook.user.dto.UserProfileResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +35,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final int LOCKOUT_MINUTES = 15;
 
     @Value("${app.jwt.refresh-token-expiration-ms}")
     private long refreshTokenExpirationMs;
@@ -69,13 +75,27 @@ public class AuthService {
         return buildAuthResponse(accessToken, refreshToken.getToken(), saved);
     }
 
+    @Transactional(noRollbackFor = BadCredentialsException.class)
     public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
-
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now())) {
+            throw new AccountLockedException("Account is temporarily locked due to too many failed login attempts. Try again later.");
+        }
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.email(), request.password())
+            );
+        } catch (BadCredentialsException e) {
+            recordFailedLogin(user);
+            throw e;
+        }
+
+        user.setFailedLoginAttempts(0);
+        user.setLockedUntil(null);
+        userRepository.save(user);
 
         UserDetails userDetails = toUserDetails(user);
         String accessToken = jwtService.generateAccessToken(userDetails);
@@ -84,6 +104,15 @@ public class AuthService {
         RefreshToken refreshToken = createRefreshToken(user);
 
         return buildAuthResponse(accessToken, refreshToken.getToken(), user);
+    }
+
+    private void recordFailedLogin(User user) {
+        int attempts = user.getFailedLoginAttempts() + 1;
+        user.setFailedLoginAttempts(attempts);
+        if (attempts >= MAX_FAILED_ATTEMPTS) {
+            user.setLockedUntil(LocalDateTime.now().plusMinutes(LOCKOUT_MINUTES));
+        }
+        userRepository.save(user);
     }
 
     public AuthResponse refresh(String refreshTokenValue) {

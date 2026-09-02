@@ -49,6 +49,9 @@ app:
     refresh-token-expiration-ms: 604800000
   cors:
     allowed-origins: http://localhost:5173
+  security:
+    rate-limit:
+      auth-requests-per-minute: 1000
 
 logging:
   level:

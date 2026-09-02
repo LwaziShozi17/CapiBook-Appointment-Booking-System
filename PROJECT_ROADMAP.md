@@ -1697,7 +1697,7 @@ Logging must NEVER include:
 
 ## PHASE 15 — SECURITY HARDENING
 
-**Status:** NOT STARTED
+**Status:** COMPLETE
 **Depends on:** Phase 14 COMPLETE
 **Blocks:** Phase 16
 
@@ -1750,16 +1750,16 @@ Dedicated security review and hardening of the entire system before production.
 ### Definition of Done
 
 ```
-[ ] Rate limiting implemented on auth endpoints
-[ ] Brute-force protection implemented
-[ ] HTTPS documented for production
-[ ] Security headers configured
-[ ] CORS restricted for production
-[ ] No secrets in source control
-[ ] OWASP report: no unresolved CRITICAL or HIGH vulnerabilities
-[ ] Trivy report: no unresolved CRITICAL vulnerabilities
-[ ] All security test scenarios pass
-[ ] Security review documented in SECURITY.md
+[x] Rate limiting implemented on auth endpoints
+[x] Brute-force protection implemented
+[x] HTTPS documented for production
+[x] Security headers configured
+[x] CORS restricted for production
+[x] No secrets in source control
+[x] OWASP report: no unresolved CRITICAL or HIGH vulnerabilities
+[x] Trivy report: no unresolved CRITICAL vulnerabilities
+[x] All security test scenarios pass
+[x] Security review documented in SECURITY.md
 ```
 
 ---
