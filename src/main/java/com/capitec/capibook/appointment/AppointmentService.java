@@ -4,6 +4,7 @@ import com.capitec.capibook.appointment.dto.AppointmentHistoryResponse;
 import com.capitec.capibook.appointment.dto.AppointmentResponse;
 import com.capitec.capibook.appointment.dto.CreateAppointmentRequest;
 import com.capitec.capibook.appointment.dto.RescheduleAppointmentRequest;
+import com.capitec.capibook.metrics.BookingMetricsService;
 import com.capitec.capibook.availability.PublicHolidayRepository;
 import com.capitec.capibook.branch.Branch;
 import com.capitec.capibook.branch.BranchOperatingHours;
@@ -61,6 +62,7 @@ public class AppointmentService {
     private final PublicHolidayRepository publicHolidayRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final BookingMetricsService metricsService;
 
     public AppointmentService(AppointmentRepository appointmentRepository,
                               AppointmentHistoryRepository appointmentHistoryRepository,
@@ -69,7 +71,8 @@ public class AppointmentService {
                               BranchOperatingHoursRepository operatingHoursRepository,
                               PublicHolidayRepository publicHolidayRepository,
                               UserRepository userRepository,
-                              ApplicationEventPublisher eventPublisher) {
+                              ApplicationEventPublisher eventPublisher,
+                              BookingMetricsService metricsService) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentHistoryRepository = appointmentHistoryRepository;
         this.branchRepository = branchRepository;
@@ -78,6 +81,7 @@ public class AppointmentService {
         this.publicHolidayRepository = publicHolidayRepository;
         this.userRepository = userRepository;
         this.eventPublisher = eventPublisher;
+        this.metricsService = metricsService;
     }
 
     /**
@@ -147,6 +151,7 @@ public class AppointmentService {
 
         Appointment saved = appointmentRepository.save(appointment);
         publishEvent(saved, AppointmentEventType.APPOINTMENT_CREATED);
+        metricsService.incrementBooked();
         return toResponse(saved, customer, branch, service);
     }
 
@@ -308,6 +313,8 @@ public class AppointmentService {
 
         Appointment savedRescheduled = appointmentRepository.save(rescheduled);
         publishEvent(savedRescheduled, AppointmentEventType.APPOINTMENT_RESCHEDULED);
+        metricsService.incrementRescheduled();
+        metricsService.incrementBooked();
         return toResponse(savedRescheduled);
     }
 
@@ -334,6 +341,13 @@ public class AppointmentService {
         AppointmentEventType eventType = STATUS_TO_EVENT.get(newStatus);
         if (eventType != null) {
             publishEvent(saved, eventType);
+        }
+        switch (newStatus) {
+            case CANCELLED  -> metricsService.incrementCancelled();
+            case CONFIRMED  -> metricsService.incrementConfirmed();
+            case COMPLETED  -> metricsService.incrementCompleted();
+            case NO_SHOW    -> metricsService.incrementNoShow();
+            default -> { }
         }
         return toResponse(saved);
     }

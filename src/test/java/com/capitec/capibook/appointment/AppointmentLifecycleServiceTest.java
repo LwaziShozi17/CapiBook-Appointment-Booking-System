@@ -15,6 +15,7 @@ import com.capitec.capibook.servicecatalog.BankingServiceRepository;
 import com.capitec.capibook.user.Role;
 import com.capitec.capibook.user.User;
 import com.capitec.capibook.user.UserRepository;
+import com.capitec.capibook.metrics.BookingMetricsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +48,7 @@ class AppointmentLifecycleServiceTest {
     @Mock private PublicHolidayRepository publicHolidayRepository;
     @Mock private UserRepository userRepository;
     @Mock private ApplicationEventPublisher applicationEventPublisher;
+    @Mock private BookingMetricsService metricsService;
 
     @InjectMocks
     private AppointmentService appointmentService;

@@ -60,6 +60,9 @@ management:
   endpoint:
     health:
       show-details: never
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 server:
   port: ${PORT:8080}
@@ -68,3 +71,4 @@ logging:
   level:
     root: WARN
     com.capitec.capibook: INFO
+  config: classpath:logback-spring.xml
