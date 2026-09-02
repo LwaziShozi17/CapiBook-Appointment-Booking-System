@@ -1,0 +1,6 @@
+target/
+frontend/
+.git/
+.gitignore
+*.md
+package-lock.json
