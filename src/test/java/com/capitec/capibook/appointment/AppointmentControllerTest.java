@@ -200,6 +200,51 @@ class AppointmentControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    // ── GET /appointments/{id} ─────────────────────────────────────────────────
+
+    @Test
+    @WithMockUser(username = CUSTOMER_EMAIL, roles = "CUSTOMER")
+    void getAppointmentById_asOwner_existingAppointment_returns200() throws Exception {
+        String futureDate = nextFutureNonHolidayWeekday();
+
+        Map<String, Object> createBody = Map.of(
+                "branchId", BRANCH_ID,
+                "serviceId", SERVICE_ID,
+                "appointmentDate", futureDate,
+                "startTime", "10:00:00"
+        );
+
+        String createResponse = mockMvc.perform(post("/api/v1/appointments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createBody)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String appointmentId = objectMapper.readTree(createResponse).path("data").path("id").asText();
+
+        mockMvc.perform(get("/api/v1/appointments/" + appointmentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.id").value(appointmentId));
+    }
+
+    @Test
+    @WithMockUser(username = CUSTOMER_EMAIL, roles = "CUSTOMER")
+    void getAppointmentById_nonExistent_returns404() throws Exception {
+        mockMvc.perform(get("/api/v1/appointments/00000000-0000-4000-8000-000000000099"))
+                .andExpect(status().isNotFound());
+    }
+
+    // ── PATCH /appointments/{id}/reschedule ────────────────────────────────────
+
+    @Test
+    void rescheduleAppointment_withoutAuthentication_returns401() throws Exception {
+        mockMvc.perform(patch("/api/v1/appointments/00000000-0000-4000-8000-000000000099/reschedule")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isUnauthorized());
+    }
+
     private String nextFutureNonHolidayWeekday() {
         java.time.LocalDate date = java.time.LocalDate.now().plusDays(1);
         while (date.getDayOfWeek() == java.time.DayOfWeek.SATURDAY

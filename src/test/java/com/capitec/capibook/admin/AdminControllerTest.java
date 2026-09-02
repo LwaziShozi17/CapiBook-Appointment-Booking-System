@@ -262,4 +262,123 @@ class AdminControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
     }
+
+    // ── Delete availability exception ─────────────────────────────────────────
+
+    @Test
+    @WithMockUser(username = SYS_ADMIN_EMAIL, roles = "SYSTEM_ADMIN")
+    void deleteException_systemAdmin_existingException_returns200() throws Exception {
+        LocalDate exceptionDate = LocalDate.now().plusDays(60);
+        Map<String, Object> body = Map.of(
+                "exceptionDate", exceptionDate.toString(),
+                "type", "CLOSED",
+                "reason", "Test deletion"
+        );
+
+        // Create exception first
+        String createResponse = mockMvc.perform(post("/api/v1/admin/branches/" + BRANCH_ID + "/exceptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        String exceptionId = objectMapper.readTree(createResponse).path("data").path("id").asText();
+
+        // Delete it
+        mockMvc.perform(delete("/api/v1/admin/branches/" + BRANCH_ID + "/exceptions/" + exceptionId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    @WithMockUser(username = BRANCH_ADMIN_EMAIL, roles = "BRANCH_ADMIN")
+    void deleteException_branchAdmin_notFound_returns404() throws Exception {
+        mockMvc.perform(delete("/api/v1/admin/branches/" + BRANCH_ID + "/exceptions/" + UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+    }
+
+    // ── Branch utilisation analytics ──────────────────────────────────────────
+
+    @Test
+    @WithMockUser(username = SYS_ADMIN_EMAIL, roles = "SYSTEM_ADMIN")
+    void getBranchUtilisation_systemAdmin_returns200() throws Exception {
+        LocalDate from = LocalDate.now().minusDays(30);
+        LocalDate to = LocalDate.now();
+
+        mockMvc.perform(get("/api/v1/admin/analytics/branches/" + BRANCH_ID + "/utilisation")
+                        .param("from", from.toString())
+                        .param("to", to.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.branchId").value(BRANCH_ID));
+    }
+
+    @Test
+    @WithMockUser(username = BRANCH_ADMIN_EMAIL, roles = "BRANCH_ADMIN")
+    void getBranchUtilisation_branchAdmin_returns403() throws Exception {
+        mockMvc.perform(get("/api/v1/admin/analytics/branches/" + BRANCH_ID + "/utilisation")
+                        .param("from", LocalDate.now().minusDays(7).toString())
+                        .param("to", LocalDate.now().toString()))
+                .andExpect(status().isForbidden());
+    }
+
+    // ── Service popularity analytics ──────────────────────────────────────────
+
+    @Test
+    @WithMockUser(username = SYS_ADMIN_EMAIL, roles = "SYSTEM_ADMIN")
+    void getServicePopularity_systemAdmin_returns200() throws Exception {
+        LocalDate from = LocalDate.now().minusDays(30);
+        LocalDate to = LocalDate.now();
+
+        mockMvc.perform(get("/api/v1/admin/analytics/services/popularity")
+                        .param("from", from.toString())
+                        .param("to", to.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data").isArray());
+    }
+
+    @Test
+    @WithMockUser(username = BRANCH_ADMIN_EMAIL, roles = "BRANCH_ADMIN")
+    void getServicePopularity_branchAdmin_returns403() throws Exception {
+        mockMvc.perform(get("/api/v1/admin/analytics/services/popularity")
+                        .param("from", LocalDate.now().minusDays(7).toString())
+                        .param("to", LocalDate.now().toString()))
+                .andExpect(status().isForbidden());
+    }
+
+    // ── Duplicate exception ───────────────────────────────────────────────────
+
+    @Test
+    @WithMockUser(username = SYS_ADMIN_EMAIL, roles = "SYSTEM_ADMIN")
+    void createException_duplicate_returns409() throws Exception {
+        LocalDate duplicateDate = LocalDate.now().plusDays(90);
+        Map<String, Object> body = Map.of(
+                "exceptionDate", duplicateDate.toString(),
+                "type", "CLOSED",
+                "reason", "First"
+        );
+
+        mockMvc.perform(post("/api/v1/admin/branches/" + BRANCH_ID + "/exceptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/v1/admin/branches/" + BRANCH_ID + "/exceptions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isConflict());
+    }
+
+    // ── Appointments with branch filter (SYSTEM_ADMIN) ────────────────────────
+
+    @Test
+    @WithMockUser(username = SYS_ADMIN_EMAIL, roles = "SYSTEM_ADMIN")
+    void listAppointments_systemAdmin_withBranchFilter_returns200() throws Exception {
+        mockMvc.perform(get("/api/v1/admin/appointments")
+                        .param("branchId", BRANCH_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.content").isArray());
+    }
 }

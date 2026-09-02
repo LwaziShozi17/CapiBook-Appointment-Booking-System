@@ -129,6 +129,20 @@ class KafkaEventIntegrationTest {
         }
     }
 
+    @Test
+    void auditConsumer_handleDuplicateEvent_writesTwoLogs() throws Exception {
+        UUID appointmentId = UUID.randomUUID();
+        String payload = objectMapper.writeValueAsString(
+                buildMessage(appointmentId, AppointmentEventType.APPOINTMENT_CREATED));
+
+        // Process the same payload twice — no idempotency guard in AuditConsumer,
+        // so each call writes one audit log (demonstrates current behaviour is logged, not deduplicated)
+        auditConsumer.handle(payload);
+        auditConsumer.handle(payload);
+
+        assertThat(auditLogRepository.count()).isEqualTo(2);
+    }
+
     private AppointmentEventMessage buildMessage(UUID appointmentId, AppointmentEventType type) {
         return new AppointmentEventMessage(
                 UUID.randomUUID(), type, Instant.now(), appointmentId,

@@ -358,4 +358,162 @@ class AppointmentLifecycleServiceTest {
         assertThatThrownBy(() -> appointmentService.getAppointmentHistory(APPOINTMENT_ID, CUSTOMER_EMAIL))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
+
+    // --- cancel: past confirmed appointment by customer ----------------------
+
+    @Test
+    void cancel_confirmedByCustomer_pastAppointment_throws422() {
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        // Set appointment to a past date+time so it cannot be cancelled by a customer
+        appointment.setAppointmentDate(LocalDate.now().minusDays(1));
+        appointment.setStartTime(LocalTime.of(9, 0));
+
+        when(userRepository.findByEmail(CUSTOMER_EMAIL)).thenReturn(Optional.of(customer));
+        when(appointmentRepository.findById(APPOINTMENT_ID)).thenReturn(Optional.of(appointment));
+
+        assertThatThrownBy(() -> appointmentService.cancelAppointment(APPOINTMENT_ID, CUSTOMER_EMAIL, null))
+                .isInstanceOf(InvalidStatusTransitionException.class)
+                .hasMessageContaining("already passed");
+    }
+
+    // --- loadUser: unknown email throws 404 -----------------------------------
+
+    @Test
+    void loadUser_unknownEmail_throws404() {
+        when(userRepository.findByEmail("ghost@test.com")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> appointmentService.cancelAppointment(APPOINTMENT_ID, "ghost@test.com", null))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    // --- reschedule: error paths ----------------------------------------------
+
+    @Test
+    void reschedule_branchNotFound_throws404() {
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        UUID unknownBranchId = UUID.randomUUID();
+
+        when(userRepository.findByEmail(CUSTOMER_EMAIL)).thenReturn(Optional.of(customer));
+        when(appointmentRepository.findById(APPOINTMENT_ID)).thenReturn(Optional.of(appointment));
+        when(branchRepository.findByIdAndActiveTrueForUpdate(unknownBranchId)).thenReturn(Optional.empty());
+
+        RescheduleAppointmentRequest request = new RescheduleAppointmentRequest(
+                unknownBranchId, UUID.randomUUID(), LocalDate.now().plusDays(7),
+                LocalTime.of(10, 0), null, null);
+
+        assertThatThrownBy(() -> appointmentService.rescheduleAppointment(APPOINTMENT_ID, CUSTOMER_EMAIL, request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Branch not found");
+    }
+
+    @Test
+    void reschedule_serviceNotFound_throws404() {
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        UUID unknownServiceId = UUID.randomUUID();
+
+        Branch branch = new Branch();
+        ReflectionTestUtils.setField(branch, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(branch, "maxConcurrentAppointments", 5);
+
+        when(userRepository.findByEmail(CUSTOMER_EMAIL)).thenReturn(Optional.of(customer));
+        when(appointmentRepository.findById(APPOINTMENT_ID)).thenReturn(Optional.of(appointment));
+        when(branchRepository.findByIdAndActiveTrueForUpdate(branch.getId())).thenReturn(Optional.of(branch));
+        when(bankingServiceRepository.findByIdAndActiveTrue(unknownServiceId)).thenReturn(Optional.empty());
+
+        RescheduleAppointmentRequest request = new RescheduleAppointmentRequest(
+                branch.getId(), unknownServiceId, LocalDate.now().plusDays(7),
+                LocalTime.of(10, 0), null, null);
+
+        assertThatThrownBy(() -> appointmentService.rescheduleAppointment(APPOINTMENT_ID, CUSTOMER_EMAIL, request))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Service not found");
+    }
+
+    @Test
+    void reschedule_onPublicHoliday_throwsIllegalArgument() {
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        LocalDate holiday = LocalDate.now().plusDays(7);
+
+        Branch branch = new Branch();
+        ReflectionTestUtils.setField(branch, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(branch, "maxConcurrentAppointments", 5);
+
+        BankingService service = new BankingService();
+        ReflectionTestUtils.setField(service, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(service, "durationMinutes", 15);
+
+        when(userRepository.findByEmail(CUSTOMER_EMAIL)).thenReturn(Optional.of(customer));
+        when(appointmentRepository.findById(APPOINTMENT_ID)).thenReturn(Optional.of(appointment));
+        when(branchRepository.findByIdAndActiveTrueForUpdate(branch.getId())).thenReturn(Optional.of(branch));
+        when(bankingServiceRepository.findByIdAndActiveTrue(service.getId())).thenReturn(Optional.of(service));
+        when(publicHolidayRepository.existsByDate(holiday)).thenReturn(true);
+
+        RescheduleAppointmentRequest request = new RescheduleAppointmentRequest(
+                branch.getId(), service.getId(), holiday, LocalTime.of(10, 0), null, null);
+
+        assertThatThrownBy(() -> appointmentService.rescheduleAppointment(APPOINTMENT_ID, CUSTOMER_EMAIL, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("public holiday");
+    }
+
+    @Test
+    void reschedule_branchClosedThatDay_throwsIllegalArgument() {
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        LocalDate date = LocalDate.now().plusDays(7);
+
+        Branch branch = new Branch();
+        ReflectionTestUtils.setField(branch, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(branch, "maxConcurrentAppointments", 5);
+
+        BankingService service = new BankingService();
+        ReflectionTestUtils.setField(service, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(service, "durationMinutes", 15);
+
+        BranchOperatingHours closedHours = new BranchOperatingHours();
+        closedHours.setClosed(true);
+
+        when(userRepository.findByEmail(CUSTOMER_EMAIL)).thenReturn(Optional.of(customer));
+        when(appointmentRepository.findById(APPOINTMENT_ID)).thenReturn(Optional.of(appointment));
+        when(branchRepository.findByIdAndActiveTrueForUpdate(branch.getId())).thenReturn(Optional.of(branch));
+        when(bankingServiceRepository.findByIdAndActiveTrue(service.getId())).thenReturn(Optional.of(service));
+        when(publicHolidayRepository.existsByDate(date)).thenReturn(false);
+        when(operatingHoursRepository.findByBranchIdAndDayOfWeek(any(), any()))
+                .thenReturn(Optional.of(closedHours));
+
+        RescheduleAppointmentRequest request = new RescheduleAppointmentRequest(
+                branch.getId(), service.getId(), date, LocalTime.of(10, 0), null, null);
+
+        assertThatThrownBy(() -> appointmentService.rescheduleAppointment(APPOINTMENT_ID, CUSTOMER_EMAIL, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("closed");
+    }
+
+    @Test
+    void reschedule_noOperatingHoursForDay_throwsIllegalArgument() {
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+        LocalDate date = LocalDate.now().plusDays(7);
+
+        Branch branch = new Branch();
+        ReflectionTestUtils.setField(branch, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(branch, "maxConcurrentAppointments", 5);
+
+        BankingService service = new BankingService();
+        ReflectionTestUtils.setField(service, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(service, "durationMinutes", 15);
+
+        when(userRepository.findByEmail(CUSTOMER_EMAIL)).thenReturn(Optional.of(customer));
+        when(appointmentRepository.findById(APPOINTMENT_ID)).thenReturn(Optional.of(appointment));
+        when(branchRepository.findByIdAndActiveTrueForUpdate(branch.getId())).thenReturn(Optional.of(branch));
+        when(bankingServiceRepository.findByIdAndActiveTrue(service.getId())).thenReturn(Optional.of(service));
+        when(publicHolidayRepository.existsByDate(date)).thenReturn(false);
+        when(operatingHoursRepository.findByBranchIdAndDayOfWeek(any(), any()))
+                .thenReturn(Optional.empty());
+
+        RescheduleAppointmentRequest request = new RescheduleAppointmentRequest(
+                branch.getId(), service.getId(), date, LocalTime.of(10, 0), null, null);
+
+        assertThatThrownBy(() -> appointmentService.rescheduleAppointment(APPOINTMENT_ID, CUSTOMER_EMAIL, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("closed");
+    }
 }
