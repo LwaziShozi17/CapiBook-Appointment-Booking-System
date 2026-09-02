@@ -1554,7 +1554,7 @@ After this completes:
 
 ## PHASE 13 — CI/CD PIPELINE
 
-**Status:** NOT STARTED
+**Status:** COMPLETE
 **Depends on:** Phase 12 COMPLETE
 **Blocks:** Phase 14
 
@@ -1618,14 +1618,14 @@ Secrets detection (e.g. TruffleHog / GitLeaks)
 ### Definition of Done
 
 ```
-[ ] backend-ci.yml runs on every push
-[ ] frontend-ci.yml runs on every push
-[ ] Build fails on test failure
-[ ] Build fails on coverage below threshold
-[ ] Docker images build successfully in CI
-[ ] Security scan runs on PRs
-[ ] Pipeline results visible on GitHub
-[ ] No secrets in workflow files
+[x] backend-ci.yml runs on every push
+[x] frontend-ci.yml runs on every push
+[x] Build fails on test failure
+[x] Build fails on coverage below threshold
+[x] Docker images build successfully in CI
+[x] Security scan runs on PRs
+[x] Pipeline results visible on GitHub
+[x] No secrets in workflow files
 ```
 
 ---
@@ -1876,4 +1876,4 @@ When commits are created, they must use the developer's existing Git identity.
 
 ---
 
-*Last updated: Phase 10 — COMPLETE (2026-09-01)*
+*Last updated: Phase 13 — COMPLETE (2026-09-02)*
