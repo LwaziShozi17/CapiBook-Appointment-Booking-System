@@ -40,15 +40,10 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col justify-between w-5/12 bg-[#00486d] px-12 py-14">
         <Link to="/" className="flex items-center gap-2 text-white w-fit">
           <span className="w-8 h-8 bg-[#009de0] rounded-lg flex items-center justify-center flex-shrink-0">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </span>
-          <span className="text-lg font-bold tracking-tight">CapiBook</span>
-        </Link>
-
+            </span>
+          </Link>
         <div>
-          <h2 className="text-3xl font-light text-white leading-tight mb-8">
+          <h2 className="text-3xl font-light text-white leading-tight mb-8" style={{ color: '#ffffff' }}>
             Book Your Capitec appointments without the wait and queue.
           </h2>
           <ul className="space-y-3.5">
