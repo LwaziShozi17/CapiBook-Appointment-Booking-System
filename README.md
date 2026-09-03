@@ -1,13 +1,13 @@
 # CapiBook — Appointment Booking System
 
-A full-stack appointment booking platform for banking services, built with **Spring Boot 4**, **React 18**, **PostgreSQL**, and **Kafka**. Production-grade observability, security, and testing throughout.
+A full-stack appointment booking platform for banking services, built with **Spring Boot 4**, **React 19**, **PostgreSQL**, and **Kafka**. Production-grade observability, security, and testing throughout.
 
 ---
 
 ## Quick Start (Local Development)
 
 ### Prerequisites
-- **Java 21** (OpenJDK 26 or later)
+- **Java 21**
 - **PostgreSQL 15**
 - **Node.js 20+**
 - **Rancher Desktop** (or Docker if available; Docker Desktop crashes on macOS in this environment)
@@ -19,10 +19,9 @@ A full-stack appointment booking platform for banking services, built with **Spr
 git clone https://github.com/capitec/capibook.git
 cd capibook
 
-# Copy environment template
-cp .env.example .env
-
-# Edit .env with your local settings (default values work for dev)
+# Create a .env file at the project root with at minimum:
+# JWT_SECRET=<generate a 256-bit secret, e.g. openssl rand -hex 32>
+# All other variables have safe defaults (see docker-compose.yml for the full list)
 ```
 
 ### 2. Database Setup
@@ -67,8 +66,8 @@ docker-compose up -d
 
 # Backend at http://localhost:8080
 # Frontend at http://localhost:3000
-# Kafka UI at http://localhost:8080/kafka-ui (if included)
-# Grafana at http://localhost:3001 (user: admin, pass: admin)
+# Kafka UI at http://localhost:8085
+# Grafana at http://localhost:3001 (user: admin, pass: capibook)
 # Prometheus at http://localhost:9090
 ```
 
@@ -115,7 +114,7 @@ See **[SECURITY.md](SECURITY.md)** for:
 ### Running Tests
 
 ```bash
-# All tests (262 total)
+# All tests (254 total)
 mvn test
 
 # Backend only
@@ -149,7 +148,7 @@ docker-compose up -d
 
 # Prometheus scrapes backend metrics every 15 seconds
 # Grafana dashboard pre-configured at localhost:3001
-# Grafana login: admin / admin
+# Grafana login: admin / capibook
 ```
 
 ### Metrics Available
@@ -283,10 +282,9 @@ If Kafka broker goes down:
 
 | Phase | Status | Purpose |
 |-------|--------|---------|
-| 0–15 | ✅ COMPLETE | Foundation, API, UI, observability, security |
-| 16 | 🚀 IN PROGRESS | Documentation, production readiness |
+| 0–16 | ✅ COMPLETE | Foundation, API, UI, observability, security, production readiness |
 
-All 262 tests passing. All phases documented in [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md).
+All 254 tests passing. All phases documented in [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md).
 
 ---
 
