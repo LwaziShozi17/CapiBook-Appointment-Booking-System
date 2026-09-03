@@ -82,7 +82,7 @@ CROSS JOIN (VALUES
     ('SATURDAY',  '08:00', '13:00', FALSE),
     ('SUNDAY',    NULL,    NULL,    TRUE)
 ) AS d(day_of_week, open_time, close_time, closed)
-WHERE b.id LIKE 'b0000000-0000-4000-8000-%';
+WHERE b.id::text LIKE 'b0000000-0000-4000-8000-%';
 
 
 -- ---------------------------------------------------------------

@@ -7,11 +7,11 @@ A full-stack appointment booking platform for banking services, built with **Spr
 ## Quick Start (Local Development)
 
 ### Prerequisites
-- **Java 21**
+- **Java 21+**
 - **PostgreSQL 15**
 - **Node.js 20+**
-- **Rancher Desktop** (or Docker if available; Docker Desktop crashes on macOS in this environment)
-- **Maven 3.9+**
+- **Docker** (Rancher Desktop or Docker Desktop)
+- **Maven 3.9+** (or use the included `./mvnw` wrapper — no install required)
 
 ### 1. Clone & Set Up
 
@@ -40,8 +40,7 @@ psql capibook_dev -c "CREATE USER capibook WITH PASSWORD 'capibook'; ALTER ROLE 
 ### 3. Start Backend
 
 ```bash
-mvn clean install
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
+./mvnw spring-boot:run
 ```
 
 Backend runs at `http://localhost:8080`. Swagger UI: `http://localhost:8080/swagger-ui.html`
@@ -61,7 +60,7 @@ Frontend runs at `http://localhost:5173`
 For full end-to-end including Kafka, Prometheus, Grafana:
 
 ```bash
-# Start Rancher Desktop first, then:
+# Start Docker first, then:
 docker-compose up -d
 
 # Backend at http://localhost:8080
@@ -70,6 +69,51 @@ docker-compose up -d
 # Grafana at http://localhost:3001 (user: admin, pass: capibook)
 # Prometheus at http://localhost:9090
 ```
+
+---
+
+## Demo Data
+
+Flyway migration V18 seeds the following data on first start — no manual setup needed:
+
+**10 SA branches** (one per province; Gauteng gets two):
+Sandton City, Soweto Maponya Mall, Cape Town Waterfront, Durban Workshop, Gqeberha Greenacres, Bloemfontein Mimosa Mall, Polokwane Mall of the North, Nelspruit Riverside Mall, Rustenburg Waterfall Mall, Kimberley Diamond Pavilion.
+
+**10 demo customers** — all share the same password:
+
+| Email | Password |
+|---|---|
+| sipho.ndlovu@gmail.com | `Password@1` |
+| naledi.mokoena@gmail.com | `Password@1` |
+| thabo.dlamini@gmail.com | `Password@1` |
+| ayesha.patel@gmail.com | `Password@1` |
+| pieter.vanzyl@gmail.com | `Password@1` |
+| zanele.khumalo@gmail.com | `Password@1` |
+| andre.botha@gmail.com | `Password@1` |
+| fatima.omar@gmail.com | `Password@1` |
+| lebo.sithole@gmail.com | `Password@1` |
+| priya.naidoo@gmail.com | `Password@1` |
+
+**20 appointments** across all branches with a mix of COMPLETED, CONFIRMED, CANCELLED, and PENDING statuses.
+
+### Creating an Admin User
+
+No admin account is seeded automatically. To access the admin dashboard, insert a `SYSTEM_ADMIN` user directly:
+
+```sql
+-- Connect: psql -U capibook -d capibook_dev
+INSERT INTO users (id, email, password_hash, first_name, last_name, role, active, created_at, updated_at)
+VALUES (
+  gen_random_uuid(),
+  'admin@capibook.co.za',
+  '$2a$12$XLXME3FzgTSc7QFKP7sOZuXqjHBqhZcUvj5zxGz2DXlmknFRSlXRa', -- Password@1
+  'System', 'Admin',
+  'SYSTEM_ADMIN', TRUE,
+  CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+);
+```
+
+Then log in at `http://localhost:5173/login` with `admin@capibook.co.za` / `Password@1` and navigate to `/admin`.
 
 ---
 
@@ -114,18 +158,15 @@ See **[SECURITY.md](SECURITY.md)** for:
 ### Running Tests
 
 ```bash
-# All tests (254 total)
-mvn test
+# All tests (262 total)
+./mvnw test
 
-# Backend only
-mvn test -pl .
-
-# Frontend
-cd frontend && npm test
-
-# Coverage report (JaCoCo)
-mvn verify
+# Coverage report (JaCoCo — 96% instruction coverage)
+./mvnw verify
 # Report at: target/site/jacoco/index.html
+
+# Frontend lint
+cd frontend && npm run lint
 ```
 
 ### Code Style & Quality
@@ -193,12 +234,25 @@ Flyway manages all database schema changes. Migrations are in `src/main/resource
 New migrations are run automatically on first backend start. To apply a specific migration:
 
 ```bash
-mvn flyway:migrate -Dflyway.placeholders.profile=dev
+./mvnw flyway:migrate -Dflyway.placeholders.profile=dev
 ```
 
 ---
 
 ## Troubleshooting
+
+### Logback startup failure: `%clr` / `%wEx` not recognized
+
+```
+There is no conversion class registered for composite conversion word [clr]
+There is no conversion supplier registered for conversion word [wEx]
+```
+
+Spring Boot's color converters need `defaults.xml` included in `logback-spring.xml`. This is already fixed in the repo — if you see this after pulling a fresh clone, ensure the file contains:
+
+```xml
+<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+```
 
 ### "PKIX path building failed" (SSL/TLS Error)
 
@@ -221,6 +275,13 @@ Check PostgreSQL is running and `capibook_dev` database exists:
 psql -U postgres -c "\l" | grep capibook_dev
 ```
 
+If Flyway shows a previously failed migration, repair the history and retry:
+
+```bash
+./mvnw flyway:repair
+./mvnw spring-boot:run
+```
+
 ### Frontend build errors
 
 Clear node_modules and reinstall:
@@ -232,15 +293,9 @@ npm ci
 npm run dev
 ```
 
-### Docker-Compose fails
+### Docker Compose fails
 
-Ensure Rancher Desktop is running:
-
-```bash
-rancher-desktop
-```
-
-Then:
+Ensure Docker (Rancher Desktop or Docker Desktop) is running, then:
 
 ```bash
 docker-compose up -d
@@ -284,7 +339,7 @@ If Kafka broker goes down:
 |-------|--------|---------|
 | 0–16 | ✅ COMPLETE | Foundation, API, UI, observability, security, production readiness |
 
-All 254 tests passing. All phases documented in [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md).
+All 262 tests passing. All phases documented in [PROJECT_ROADMAP.md](PROJECT_ROADMAP.md).
 
 ---
 
