@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <!-- Register Spring Boot's %clr, %wEx, %correlationId converters -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
     <!-- Dev profile: plain colored console output -->
     <springProfile name="dev">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

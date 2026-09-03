@@ -44,20 +44,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --cap-bg: #0c1220;
-    --cap-surface: #141c2e;
-    --cap-subtle: #1e293b;
-    --cap-active: #1e3048;
-    --cap-highlight: #192640;
-    --cap-border: #1e293b;
-    --cap-mid: #334155;
-    --cap-ink: #f1f5f9;
-    --cap-body: #cbd5e1;
-    --cap-muted: #94a3b8;
-  }
-}
 
 #root {
   min-height: 100svh;

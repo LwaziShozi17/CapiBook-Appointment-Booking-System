@@ -48,8 +48,8 @@ export default function LoginPage() {
         </Link>
 
         <div>
-          <h2 className="text-3xl font-bold text-white leading-tight mb-8">
-            Book Capitec appointments without the wait.
+          <h2 className="text-3xl font-light text-white leading-tight mb-8">
+            Book Your Capitec appointments without the wait and queue.
           </h2>
           <ul className="space-y-3.5">
             {FEATURES.map((f) => (
@@ -86,7 +86,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full border border-[#e2e8f0] rounded-lg px-3.5 py-2.5 text-sm text-[#0f172a] placeholder:text-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#009de0]/20 focus:border-[#009de0] transition-colors bg-white"
-                  placeholder="you@example.com"
+                  placeholder="lwaazishozi11@gmail.com"
                 />
               </div>
 
