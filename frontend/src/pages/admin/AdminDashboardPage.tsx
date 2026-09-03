@@ -6,13 +6,23 @@ import { listAdminAppointments } from '../../api/appointments'
 import type { AppointmentSummaryResponse, AppointmentResponse, AppointmentStatus } from '../../types'
 
 const STATUS_STYLES: Record<AppointmentStatus, string> = {
-  PENDING: 'bg-[#fff3e0] text-[#d66700]',
-  CONFIRMED: 'bg-[#f2fafd] text-[#009de0]',
-  CANCELLED: 'bg-[#fdf2f4] text-[#a5132a]',
-  COMPLETED: 'bg-[#f0f7e6] text-[#68a200]',
-  NO_SHOW: 'bg-[#efefef] text-[#7c7c7c]',
-  RESCHEDULED: 'bg-[#edf8fd] text-[#00486d]',
+  PENDING: 'bg-[#fff7ed] text-[#ea580c] border border-[#fed7aa]',
+  CONFIRMED: 'bg-[#eff9ff] text-[#009de0] border border-[#bae6fd]',
+  CANCELLED: 'bg-[#fef2f2] text-[#dc2626] border border-[#fecaca]',
+  COMPLETED: 'bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0]',
+  NO_SHOW: 'bg-[#f8fafc] text-[#64748b] border border-[#e2e8f0]',
+  RESCHEDULED: 'bg-[#ecfeff] text-[#0891b2] border border-[#a5f3fc]',
 }
+
+const STAT_CONFIG = [
+  { key: 'totalBooked',      label: 'Total booked',  valueColor: 'text-[#0f172a]' },
+  { key: 'totalPending',     label: 'Pending',        valueColor: 'text-[#ea580c]' },
+  { key: 'totalConfirmed',   label: 'Confirmed',      valueColor: 'text-[#009de0]' },
+  { key: 'totalCompleted',   label: 'Completed',      valueColor: 'text-[#16a34a]' },
+  { key: 'totalCancelled',   label: 'Cancelled',      valueColor: 'text-[#dc2626]' },
+  { key: 'totalNoShow',      label: 'No-show',        valueColor: 'text-[#64748b]' },
+  { key: 'totalRescheduled', label: 'Rescheduled',    valueColor: 'text-[#0891b2]' },
+] as const
 
 function today(): string {
   return new Date().toISOString().split('T')[0]
@@ -59,72 +69,74 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="px-8 py-8">
-      <h1 className="text-2xl font-bold text-[#383634] mb-1">Dashboard</h1>
-      <p className="text-sm text-[#7c7c7c] mb-8">
-        Welcome back, {user?.firstName}. Here's an overview of recent activity.
-      </p>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-[#0f172a]">Dashboard</h1>
+        <p className="text-sm text-[#64748b] mt-1">
+          Welcome back, {user?.firstName}. Here's an overview of recent activity.
+        </p>
+      </div>
 
       {isSystemAdmin && summary && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: 'Total Booked', value: summary.totalBooked, color: 'text-[#383634]' },
-            { label: 'Pending', value: summary.totalPending, color: 'text-[#d66700]' },
-            { label: 'Confirmed', value: summary.totalConfirmed, color: 'text-[#009de0]' },
-            { label: 'Completed', value: summary.totalCompleted, color: 'text-[#68a200]' },
-            { label: 'Cancelled', value: summary.totalCancelled, color: 'text-[#a5132a]' },
-            { label: 'No-Show', value: summary.totalNoShow, color: 'text-[#7c7c7c]' },
-            { label: 'Rescheduled', value: summary.totalRescheduled, color: 'text-[#00486d]' },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-white border border-[#e1e1e1] rounded-xl p-4">
-              <p className="text-xs text-[#7c7c7c] mb-1">{stat.label}</p>
-              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-            </div>
-          ))}
-          <div className="bg-white border border-[#e1e1e1] rounded-xl p-4 col-span-2 md:col-span-1 flex flex-col justify-center">
-            <p className="text-xs text-[#abb3b7]">Last 30 days</p>
+        <>
+          <p className="text-xs font-semibold text-[#94a3b8] mb-3 tracking-wide">
+            Last 30 days
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            {STAT_CONFIG.map(({ key, label, valueColor }) => (
+              <div key={key} className="bg-white border border-[#e2e8f0] rounded-xl p-4">
+                <p className="text-xs text-[#94a3b8] font-medium mb-1">{label}</p>
+                <p className={`text-2xl font-bold ${valueColor}`}>
+                  {summary[key as keyof AppointmentSummaryResponse]}
+                </p>
+              </div>
+            ))}
           </div>
-        </div>
+        </>
       )}
 
-      <div className="bg-white border border-[#e1e1e1] rounded-xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#e1e1e1]">
-          <h2 className="text-sm font-semibold text-[#383634]">Recent Appointments</h2>
+      <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#f1f5f9]">
+          <h2 className="text-sm font-semibold text-[#0f172a]">Recent appointments</h2>
           <button
             onClick={() => navigate('/admin/appointments')}
-            className="text-xs text-[#009de0] hover:text-[#0084d5] font-medium"
+            className="text-xs text-[#009de0] hover:text-[#0085c3] font-semibold transition-colors"
           >
             View all
           </button>
         </div>
         {recent.length === 0 ? (
-          <div className="px-5 py-8 text-center text-sm text-[#abb3b7]">No appointments yet.</div>
+          <div className="px-5 py-10 text-center text-sm text-[#94a3b8]">
+            No appointments yet.
+          </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#e1e1e1] text-xs text-[#7c7c7c]">
-                <th className="text-left px-5 py-3 font-medium">Reference</th>
-                <th className="text-left px-4 py-3 font-medium">Customer</th>
-                <th className="text-left px-4 py-3 font-medium">Service</th>
-                <th className="text-left px-4 py-3 font-medium">Date</th>
-                <th className="text-left px-4 py-3 font-medium">Status</th>
+              <tr className="bg-[#f8fafc] border-b border-[#e2e8f0]">
+                <th className="text-left px-5 py-3 text-xs font-semibold text-[#64748b]">Reference</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748b]">Customer</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748b]">Service</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748b]">Date</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-[#64748b]">Status</th>
               </tr>
             </thead>
             <tbody>
-              {recent.map((appt) => (
+              {recent.map((appt, i) => (
                 <tr
                   key={appt.id}
                   onClick={() => navigate('/admin/appointments')}
-                  className="border-b border-[#e1e1e1] hover:bg-[#f8f8f9] cursor-pointer"
+                  className={`border-b border-[#f1f5f9] hover:bg-[#f8fafc] cursor-pointer transition-colors ${
+                    i === recent.length - 1 ? 'border-b-0' : ''
+                  }`}
                 >
-                  <td className="px-5 py-3 font-mono text-xs text-[#abb3b7]">{appt.referenceNumber}</td>
-                  <td className="px-4 py-3 text-[#383634]">
+                  <td className="px-5 py-3 font-mono text-xs text-[#94a3b8]">{appt.referenceNumber}</td>
+                  <td className="px-4 py-3 text-[#0f172a] font-medium">
                     {appt.customerFirstName} {appt.customerLastName}
                   </td>
-                  <td className="px-4 py-3 text-[#383634]">{appt.serviceName}</td>
-                  <td className="px-4 py-3 text-[#7c7c7c]">{appt.appointmentDate}</td>
+                  <td className="px-4 py-3 text-[#334155]">{appt.serviceName}</td>
+                  <td className="px-4 py-3 text-[#64748b] text-xs">{appt.appointmentDate}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[appt.status]}`}
+                      className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${STATUS_STYLES[appt.status]}`}
                     >
                       {appt.status}
                     </span>

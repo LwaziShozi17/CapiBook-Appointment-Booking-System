@@ -3,34 +3,39 @@
 :root {
   /* Capitec Brand Colors */
   --cap-primary: #009de0;
-  --cap-primary-hover: #0084d5;
-  --cap-secondary: #00486d;
+  --cap-primary-hover: #0085c3;
+  --cap-deep: #00486d;
+  --cap-deep-dark: #003a5a;
 
-  /* Capitec UI Neutrals */
-  --cap-bg: #f5f5f5;
+  /* Surface System */
+  --cap-bg: #f8fafc;
   --cap-surface: #ffffff;
-  --cap-body: #383634;
-  --cap-dark: #3a3a3a;
-  --cap-mid: #abb3b7;
-  --cap-border: #e1e1e1;
-  --cap-subtle: #efefef;
-  --cap-access: #7c7c7c;
-  --cap-active: #f8f8f9;
-  --cap-highlight: #f2fafd;
-  --cap-disabled: #a2a9ac;
-
-  /* Capitec Status Colors */
-  --cap-success: #68a200;
-  --cap-warning: #d66700;
-  --cap-error: #a5132a;
-  --cap-info: #008490;
+  --cap-subtle: #f1f5f9;
+  --cap-active: #e8f4fd;
+  --cap-highlight: #eff9ff;
+  --cap-border: #e2e8f0;
+  --cap-mid: #cbd5e1;
 
   /* Typography */
-  --cap-font: 'Hind Vadodara', Helvetica, Arial, sans-serif;
+  --cap-ink: #0f172a;
+  --cap-body: #334155;
+  --cap-muted: #64748b;
+  --cap-disabled: #94a3b8;
+  --cap-font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  /* Status Colors */
+  --cap-success: #16a34a;
+  --cap-success-bg: #f0fdf4;
+  --cap-warning: #ea580c;
+  --cap-warning-bg: #fff7ed;
+  --cap-error: #dc2626;
+  --cap-error-bg: #fef2f2;
+  --cap-info: #0891b2;
+  --cap-info-bg: #ecfeff;
 
   font-family: var(--cap-font);
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.6;
   color: var(--cap-body);
   background: var(--cap-bg);
   font-synthesis: none;
@@ -41,13 +46,16 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --cap-bg: #121212;
-    --cap-surface: #1e1e1e;
-    --cap-body: #c7c9cb;
-    --cap-mid: #3f3f3f;
-    --cap-border: #444444;
-    --cap-active: #2b2b2b;
-    --cap-highlight: #313131;
+    --cap-bg: #0c1220;
+    --cap-surface: #141c2e;
+    --cap-subtle: #1e293b;
+    --cap-active: #1e3048;
+    --cap-highlight: #192640;
+    --cap-border: #1e293b;
+    --cap-mid: #334155;
+    --cap-ink: #f1f5f9;
+    --cap-body: #cbd5e1;
+    --cap-muted: #94a3b8;
   }
 }
 
@@ -64,11 +72,25 @@ body {
 
 h1, h2, h3, h4 {
   font-family: var(--cap-font);
-  font-weight: 600;
-  color: var(--cap-body);
+  font-weight: 700;
+  color: var(--cap-ink);
   margin: 0;
+  line-height: 1.2;
 }
 
 p {
   margin: 0;
+}
+
+/* Base input style — applied via Tailwind utility classes in components */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+  font-family: var(--cap-font);
+  font-size: 14px;
 }
